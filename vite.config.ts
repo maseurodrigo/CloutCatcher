@@ -18,5 +18,9 @@ export default defineConfig({
   plugins: [react()],  
   optimizeDeps: {
     include: ['lucide-react'] // Prebundle Lucide to speed up loading
+  },
+  server: { 
+    port: 8080, 
+    allowedHosts: ['cloutcatcher.up.railway.app']
   }
 });
