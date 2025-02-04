@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes floatParticle {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  25% {
+    transform: translate(20px, -20px) rotate(90deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(40px, 0) rotate(180deg);
+    opacity: 0.2;
+  }
+  75% {
+    transform: translate(20px, 20px) rotate(270deg);
+    opacity: 0.3;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px var(--theme-color, #66FF00));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px var(--theme-color, #66FF00));
+  }
+}
+
+@keyframes scrollNumberUp {
+  0% {
+    transform: translateY(100%) rotateX(-90deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) rotateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scrollNumberDown {
+  0% {
+    transform: translateY(-100%) rotateX(90deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) rotateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+.number-scroll {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  backface-visibility: hidden;
+}
+
+.number-scroll.animate-up {
+  animation: scrollNumberUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.number-scroll.animate-down {
+  animation: scrollNumberDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+body {
+  background: transparent;
+  margin: 0;
+  overflow: hidden;
+}
