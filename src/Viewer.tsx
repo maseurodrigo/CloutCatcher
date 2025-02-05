@@ -21,7 +21,8 @@ function Viewer() {
     settings: {
       followerGoal: 0,
       subscriberGoal: 0,
-      themeColor: ''
+      themeColor: '',
+      backgroundColor: ''
     }
   });
   
@@ -43,7 +44,8 @@ function Viewer() {
         settings: {
           followerGoal: urlJsonData.settings.followerGoal,
           subscriberGoal: urlJsonData.settings.subscriberGoal,
-          themeColor: urlJsonData.settings.themeColor
+          themeColor: urlJsonData.settings.themeColor,
+          backgroundColor: urlJsonData.settings.backgroundColor
         }
       });
     }
@@ -113,7 +115,7 @@ function Viewer() {
           <span className="font-medium tracking-wide text-[11px]" style={{ color: widgetConfig.settings.themeColor }}>{label}</span>
         </div>
         <div className="flex items-baseline gap-2 mb-2 overflow-hidden">
-          <div ref={numberRef} className="text-lg font-bold tracking-tight text-white number-scroll">
+          <div ref={numberRef} className="text-lg font-bold tracking-tight text-white number-scroll drop-shadow-lg">
             {typeof value === 'number' ? (value ?? 0).toLocaleString() : value}
           </div>
           {difference > 0 && (
@@ -150,10 +152,11 @@ function Viewer() {
           style={{ 
             background: `linear-gradient(to right, ${widgetConfig.settings.themeColor}, ${widgetConfig.settings.themeColor}, ${widgetConfig.settings.themeColor})`
           }}></div>
-        <div className="relative bg-black bg-opacity-95 backdrop-blur-xl rounded-lg p-4 transition-all duration-500"
+        <div className="relative bg-opacity-95 backdrop-blur-xl rounded-lg p-4 transition-all duration-500"
           style={{ 
-            borderColor: `${widgetConfig.settings.themeColor}33`,
-            boxShadow: `0 0 0 1px ${widgetConfig.settings.themeColor}33`
+            backgroundColor: `${widgetConfig.settings.backgroundColor}`,
+            borderColor: `${widgetConfig.settings.themeColor}`,
+            boxShadow: `0 0 0 1px ${widgetConfig.settings.themeColor}`
           }}>
           <div className="grid grid-cols-2 gap-4">
             <StatItem 

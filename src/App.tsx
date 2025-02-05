@@ -14,7 +14,8 @@ function App() {
   const [settings, setSettings] = useState({
     followerGoal: 1000,
     subscriberGoal: 50,
-    themeColor: '#66FF00'
+    themeColor: '#66FF00',
+    backgroundColor: '#121212'
   });
   
   // Set and subscribe to Twitch WebSocket events with client app data
@@ -43,8 +44,13 @@ function App() {
     setSubscribers(channelSubscriptions);
   }, [channelFollowers, channelSubscriptions]);
 
-  const authData = { accessToken, broadcasterId, settings: { followerGoal: settings.followerGoal, subscriberGoal: settings.subscriberGoal, themeColor: settings.themeColor } };
-
+  const authData = { accessToken, broadcasterId, settings: { 
+    followerGoal: settings.followerGoal, 
+    subscriberGoal: settings.subscriberGoal, 
+    themeColor: settings.themeColor, 
+    backgroundColor: settings.backgroundColor 
+  } };
+  
   // Encrypt the authentication data array
   const encryptedData = encrypt(import.meta.env.VITE_PASSPHRASE, JSON.stringify(authData, null, 2));
 
@@ -92,7 +98,7 @@ function App() {
           <span className="font-medium tracking-wide text-[11px]" style={{ color: settings.themeColor }}>{label}</span>
         </div>
         <div className="flex items-baseline gap-2 mb-2 overflow-hidden">
-          <div ref={numberRef} className="text-lg font-bold tracking-tight text-white number-scroll">
+          <div ref={numberRef} className="text-lg font-bold tracking-tight text-white number-scroll drop-shadow-lg">
             {typeof value === 'number' ? value.toLocaleString() : value}
           </div>
           {difference > 0 && (
@@ -124,39 +130,39 @@ function App() {
 
   return (
     <div className="min-h-screen bg-transparent p-12 font-sans">
-      <div className="fixed top-4 right-20 flex justify-center items-center max-w-screen-xl bg-[rgba(31,32,41,0.4)] text-white pl-8 pr-4 py-2 rounded-lg shadow-lg">
-          <span className="max-w-3xl overflow-hidden whitespace-nowrap text-ellipsis">
-            {viewerLink}
-          </span>
-          <button onClick={copyURLToClipboard}
-            className="bg-gray-900/90 hover:bg-gray-800 text-white ml-4 py-3 px-3 rounded-md transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[0_0_20px_rgba(0,0,0,0.3)] transform hover:scale-105 backdrop-blur-lg border border-gray-700/30">
-            <svg className="w-[18px] h-[18px] dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z"/>
-            </svg>
-          </button>
+      <div className="fixed top-6 right-6 flex gap-4 pointer-events-auto z-5">
+        <div className="flex justify-center items-center w-full">
+          {/* Viewer Link */}
+          <div className="flex justify-center items-center max-w-screen-xl bg-[rgba(31,32,41,0.4)] text-white pl-8 pr-4 py-2 rounded-lg shadow-lg">
+            <span className="max-w-3xl overflow-hidden whitespace-nowrap text-ellipsis">
+              {viewerLink}
+            </span>
+            <button onClick={copyURLToClipboard}
+              className="bg-gray-900/90 hover:bg-gray-800 text-white ml-4 py-3 px-3 rounded-md transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[0_0_20px_rgba(0,0,0,0.3)] transform hover:scale-105 backdrop-blur-lg border border-gray-700/30">
+              <svg className="w-[18px] h-[18px] dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z"/>
+              </svg>
+            </button>
+          </div>
         </div>
-      {/* Settings Button */}
-      <button
-        onClick={() => setShowSettings(!showSettings)}
-        className="fixed top-4 right-4 p-2 rounded-lg bg-black bg-opacity-95 hover:bg-opacity-90 transition-all duration-300 backdrop-blur-xl"
-        style={{ 
-          color: settings.themeColor,
-          borderColor: `${settings.themeColor}33`,
-          boxShadow: `0 0 0 1px ${settings.themeColor}33`
-        }}
-      >
-        <Settings className="w-5 h-5" />
-      </button>
+        {/* Settings Button */}
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className="bg-gray-900/90 hover:bg-gray-800 text-white rounded-2xl p-4 transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[0_0_20px_rgba(0,0,0,0.3)] transform hover:scale-105 backdrop-blur-lg border border-gray-700/30">
+          <Settings size={24} className="transform hover:rotate-90 transition-transform duration-300" />
+        </button>
+      </div>
       <div className="relative group max-w-[280px]">
         <div className="absolute inset-0.5 rounded-lg blur opacity-50 group-hover:opacity-75 transition-all duration-500"
           style={{ 
             background: `linear-gradient(to right, ${settings.themeColor}, ${settings.themeColor}, ${settings.themeColor})`
           }}
         ></div>
-        <div className="relative bg-black bg-opacity-95 backdrop-blur-xl rounded-lg p-4 transition-all duration-500"
+        <div className="relative bg-opacity-95 backdrop-blur-xl rounded-lg p-4 transition-all duration-500"
           style={{ 
-            borderColor: `${settings.themeColor}33`,
-            boxShadow: `0 0 0 1px ${settings.themeColor}33`
+            backgroundColor: `${settings.backgroundColor}`,
+            borderColor: `${settings.themeColor}`,
+            boxShadow: `0 0 0 1px ${settings.themeColor}`
           }}
         >
           <div className="grid grid-cols-2 gap-4">
@@ -183,7 +189,7 @@ function App() {
         </div>
       </div>
       {/* Settings Panel */}
-      <div className={`fixed inset-y-0 right-0 w-80 bg-black/95 backdrop-blur-xl p-6 transform transition-all duration-300 ease-in-out ${showSettings ? 'translate-x-0' : 'translate-x-full'} shadow-xl`}
+      <div className={`fixed inset-y-0 right-0 w-80 bg-gray-900/90 backdrop-blur-xl p-6 transform transition-all duration-300 ease-in-out ${showSettings ? 'translate-x-0' : 'translate-x-full'} shadow-3xl`}
         style={{ 
           borderColor: `${settings.themeColor}33`,
           boxShadow: `0 0 0 1px ${settings.themeColor}33`
@@ -193,11 +199,7 @@ function App() {
           <h2 className="text-white text-lg font-semibold">Settings</h2>
           <button
             onClick={() => setShowSettings(false)}
-            className="p-1 rounded-full transition-colors hover:bg-white/5"
-            style={{ 
-              color: settings.themeColor
-            }}
-          >
+            className="p-1 rounded-full transition-colors text-white hover:bg-white/5">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -233,6 +235,23 @@ function App() {
                 type="text"
                 value={settings.themeColor}
                 onChange={(e) => setSettings(prev => ({ ...prev, themeColor: e.target.value }))}
+                className={`flex-1 bg-black/50 border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-[${settings.themeColor}]`}
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="block text-sm text-white/80">Background Color</label>
+            <div className="flex gap-2">
+              <input
+                type="color"
+                value={settings.backgroundColor}
+                onChange={(e) => setSettings(prev => ({ ...prev, backgroundColor: e.target.value }))}
+                className="w-10 h-10 rounded border border-white/10 bg-transparent cursor-pointer"
+              />
+              <input
+                type="text"
+                value={settings.backgroundColor}
+                onChange={(e) => setSettings(prev => ({ ...prev, backgroundColor: e.target.value }))}
                 className={`flex-1 bg-black/50 border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-[${settings.themeColor}]`}
               />
             </div>
