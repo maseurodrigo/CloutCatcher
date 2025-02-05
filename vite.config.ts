@@ -4,24 +4,31 @@ import path from 'path';
 import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  build: { 
-    outDir: path.resolve(__dirname, 'dist'),
-    chunkSizeWarningLimit: 1000, // Prevent warnings
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'lucide-icons': ['lucide-react'] // Create a separate cacheable chunk
+export default defineConfig(async ({ mode }) => {
+  const devPlugins = [];
+  if (mode === 'development') {
+    const { i18nextHMRPlugin } = await import('i18next-hmr/vite');
+    devPlugins.push(i18nextHMRPlugin({ localesDir: './public/locales' }));
+  }
+  return { 
+    build: { 
+      outDir: path.resolve(__dirname, 'dist'),
+      chunkSizeWarningLimit: 1000, // Prevent warnings
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'lucide-icons': ['lucide-react'] // Create a separate cacheable chunk
+          }
         }
       }
+    },
+    plugins: [react(), nodePolyfills()].concat(devPlugins),  
+    optimizeDeps: {
+      include: ['lucide-react'] // Prebundle Lucide to speed up loading
+    },
+    server: { 
+      port: 8080, 
+      allowedHosts: ['cloutcatcher.up.railway.app']
     }
-  },
-  plugins: [react(), nodePolyfills()],  
-  optimizeDeps: {
-    include: ['lucide-react'] // Prebundle Lucide to speed up loading
-  },
-  server: { 
-    port: 8080, 
-    allowedHosts: ['cloutcatcher.up.railway.app']
-  }
+  };
 });

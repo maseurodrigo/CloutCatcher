@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Heart, TrendingUp } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 
 // @ts-ignore
 import { decrypt } from "./utils/CryptString";
@@ -11,6 +12,8 @@ import { useTwitchWebSocket } from './api/TwitchWebSocket';
 const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Heart, TrendingUp };
 
 function Viewer() {
+  const { t, i18n } = useTranslation();
+
   // Retrieve encrypted data from the URL
   const { encryptedData } = useParams();
 
@@ -19,6 +22,9 @@ function Viewer() {
     accessToken: '',
     broadcasterId: 0,
     settings: {
+      lang: "en",
+      showFollowers: true,
+      showSubscribers: true,
       followerGoal: 0,
       subscriberGoal: 0,
       themeColor: '',
@@ -42,12 +48,18 @@ function Viewer() {
         accessToken: urlJsonData.accessToken,
         broadcasterId: urlJsonData.broadcasterId,
         settings: {
+          lang: urlJsonData.settings.lang, 
+          showFollowers: urlJsonData.settings.showFollowers, 
+          showSubscribers: urlJsonData.settings.showSubscribers, 
           followerGoal: urlJsonData.settings.followerGoal,
           subscriberGoal: urlJsonData.settings.subscriberGoal,
           themeColor: urlJsonData.settings.themeColor,
           backgroundColor: urlJsonData.settings.backgroundColor
         }
       });
+
+      // Updates the i18n language
+      i18n.changeLanguage(urlJsonData.settings.lang);
     }
   }, [encryptedData]); // Re-run the effect if the encrypted data changes
 
@@ -135,7 +147,7 @@ function Viewer() {
         </div>
         <div className="flex justify-between items-center mt-1">
           <div className="text-[9px]" style={{ color: `${widgetConfig.settings.themeColor}99` }}>
-            Goal: {(goal ?? 0).toLocaleString()}
+            <Trans t={t} i18nKey="goal" components={[<code key={0} />]} />: {(goal ?? 0).toLocaleString()}
           </div>
           <div className="text-[9px]" style={{ color: `${widgetConfig.settings.themeColor}99` }}>
             {Math.round(progress)}%
@@ -158,23 +170,27 @@ function Viewer() {
             borderColor: `${widgetConfig.settings.themeColor}`,
             boxShadow: `0 0 0 1px ${widgetConfig.settings.themeColor}`
           }}>
-          <div className="grid grid-cols-2 gap-4">
-            <StatItem 
-              icon={ICONS['TrendingUp']} 
-              label="Followers" 
-              value={followers}
-              initialValue={channelFollowers ?? 0}
-              goal={widgetConfig.settings.followerGoal}/>
-            <StatItem 
-              icon={ICONS['Heart']} 
-              label="Subscribers" 
-              value={subscribers}
-              initialValue={channelSubscriptions ?? 0}
-              goal={widgetConfig.settings.subscriberGoal}/>
+          <div className={`grid gap-4 grid-cols-${(Number(widgetConfig.settings.showFollowers) + Number(widgetConfig.settings.showSubscribers)) || 0}`}>
+            {widgetConfig.settings.showFollowers && (
+              <StatItem 
+                icon={ICONS['TrendingUp']} 
+                label={t('followers')} 
+                value={followers}
+                initialValue={channelFollowers ?? 0}
+                goal={widgetConfig.settings.followerGoal}/>
+            )}
+            {widgetConfig.settings.showSubscribers && (
+              <StatItem 
+                icon={ICONS['Heart']} 
+                label={t('subscribers')} 
+                value={subscribers}
+                initialValue={channelSubscriptions ?? 0}
+                goal={widgetConfig.settings.subscriberGoal}/>
+            )}
           </div>
           <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500"
-            style={{ background: `linear-gradient(to bottom right, ${widgetConfig.settings.themeColor}0d, transparent, transparent)` }}
-          ></div>
+            style={{ background: `linear-gradient(to bottom right, ${widgetConfig.settings.themeColor}0d, transparent, transparent)` }}>
+          </div>
         </div>
       </div>
     </div>

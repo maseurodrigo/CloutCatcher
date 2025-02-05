@@ -1,0 +1,13 @@
+{
+    "language": "Language",
+    "settings": "Settings",
+    "showFollowers": "Show Followers",
+    "showSubscribers": "Show Subscribers",
+    "followersGoal": "Followers Goal",
+    "subscribersGoal": "Subscribers Goal",
+    "themeColor": "Theme Color",
+    "backgroundColor": "Background Color",
+    "followers": "Followers",
+    "subscribers": "Subscribers",
+    "goal": "Goal"
+}

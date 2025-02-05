@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Heart, TrendingUp, Settings, X } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 
 // @ts-ignore
 import { setTwitchWebSocket } from './api/TwitchWebSocket';
@@ -10,8 +11,13 @@ import { encrypt } from "./utils/CryptString";
 const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Heart, TrendingUp };
 
 function App() {
+  const { t, i18n } = useTranslation();
+
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState({
+    lang: "en",
+    showFollowers: true,
+    showSubscribers: true,
     followerGoal: 1000,
     subscriberGoal: 50,
     themeColor: '#66FF00',
@@ -45,6 +51,9 @@ function App() {
   }, [channelFollowers, channelSubscriptions]);
 
   const authData = { accessToken, broadcasterId, settings: { 
+    lang: settings.lang, 
+    showFollowers: settings.showFollowers, 
+    showSubscribers: settings.showSubscribers, 
     followerGoal: settings.followerGoal, 
     subscriberGoal: settings.subscriberGoal, 
     themeColor: settings.themeColor, 
@@ -59,6 +68,12 @@ function App() {
 
   // Copies URL to clipboard
   const copyURLToClipboard = () => { navigator.clipboard.writeText(viewerLink); };
+
+  // Updates the i18n language and stores the selected language in state
+  const handleLanguageChange = (lang: string) => {
+    i18n.changeLanguage(lang);
+    setSettings(prev => ({ ...prev, lang }));
+  };
 
   interface StatItemProps {
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -118,7 +133,7 @@ function App() {
         </div>
         <div className="flex justify-between items-center mt-1">
           <div className="text-[9px]" style={{ color: `${settings.themeColor}99` }}>
-            Goal: {goal.toLocaleString()}
+            <Trans t={t} i18nKey="goal" components={[<code key={0} />]} />: {goal.toLocaleString()}
           </div>
           <div className="text-[9px]" style={{ color: `${settings.themeColor}99` }}>
             {Math.round(progress)}%
@@ -163,23 +178,24 @@ function App() {
             backgroundColor: `${settings.backgroundColor}`,
             borderColor: `${settings.themeColor}`,
             boxShadow: `0 0 0 1px ${settings.themeColor}`
-          }}
-        >
-          <div className="grid grid-cols-2 gap-4">
-            <StatItem 
-              icon={ICONS['TrendingUp']} 
-              label="Followers" 
-              value={followers}
-              initialValue={channelFollowers}
-              goal={settings.followerGoal}
-            />
-            <StatItem 
-              icon={ICONS['Heart']} 
-              label="Subscribers" 
-              value={subscribers}
-              initialValue={channelSubscriptions}
-              goal={settings.subscriberGoal}
-            />
+          }}>
+          <div className={`grid gap-4 grid-cols-${(Number(settings.showFollowers) + Number(settings.showSubscribers)) || 0}`}>
+            {settings.showFollowers && (
+              <StatItem 
+                icon={ICONS['TrendingUp']} 
+                label={t('followers')}
+                value={followers}
+                initialValue={channelFollowers}
+                goal={settings.followerGoal}/>
+            )}
+            {settings.showSubscribers && (
+              <StatItem 
+                icon={ICONS['Heart']} 
+                label={t('subscribers')} 
+                value={subscribers}
+                initialValue={channelSubscriptions}
+                goal={settings.subscriberGoal}/>
+            )}
           </div>
           <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500"
             style={{ 
@@ -193,10 +209,9 @@ function App() {
         style={{ 
           borderColor: `${settings.themeColor}33`,
           boxShadow: `0 0 0 1px ${settings.themeColor}33`
-        }}
-      >
+        }}>
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-white text-lg font-semibold">Settings</h2>
+          <h2 className="text-white text-lg font-semibold"><Trans t={t} i18nKey="settings" components={[<code key={0} />]} /></h2>
           <button
             onClick={() => setShowSettings(false)}
             className="p-1 rounded-full transition-colors text-white hover:bg-white/5">
@@ -205,7 +220,39 @@ function App() {
         </div>
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="block text-sm text-white/80">Followers Goal</label>
+            <label className="block text-sm text-white/80">
+              <Trans t={t} i18nKey="language" components={[<code key={0} />]} />
+            </label>
+            <select
+              value={settings.lang}
+              onChange={(e) => handleLanguageChange(e.target.value)}
+              className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-[settings.themeColor]">
+              <option value="en">EN</option>
+              <option value="pt">PT</option>
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label className="flex items-center space-x-2 text-white/80">
+              <input
+                type="checkbox"
+                checked={settings.showFollowers}
+                onChange={(e) => setSettings(prev => ({ ...prev, showFollowers: e.target.checked }))}
+                className="w-5 h-5 rounded border border-white/10 bg-black/50 cursor-pointer"/>
+              <span><Trans t={t} i18nKey="showFollowers" components={[<code key={0} />]} /></span>
+            </label>
+          </div>
+          <div className="space-y-2">
+            <label className="flex items-center space-x-2 text-white/80">
+              <input
+                type="checkbox"
+                checked={settings.showSubscribers}
+                onChange={(e) => setSettings(prev => ({ ...prev, showSubscribers: e.target.checked }))}
+                className="w-5 h-5 rounded border border-white/10 bg-black/50 cursor-pointer"/>
+              <span><Trans t={t} i18nKey="showSubscribers" components={[<code key={0} />]} /></span>
+            </label>
+          </div>
+          <div className="space-y-2">
+            <label className="block text-sm text-white/80"><Trans t={t} i18nKey="followersGoal" components={[<code key={0} />]} /></label>
             <input
               type="number"
               value={settings.followerGoal}
@@ -214,7 +261,7 @@ function App() {
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-sm text-white/80">Subscribers Goal</label>
+            <label className="block text-sm text-white/80"><Trans t={t} i18nKey="subscribersGoal" components={[<code key={0} />]} /></label>
             <input
               type="number"
               value={settings.subscriberGoal}
@@ -223,7 +270,7 @@ function App() {
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-sm text-white/80">Theme Color</label>
+            <label className="block text-sm text-white/80"><Trans t={t} i18nKey="themeColor" components={[<code key={0} />]} /></label>
             <div className="flex gap-2">
               <input
                 type="color"
@@ -240,7 +287,7 @@ function App() {
             </div>
           </div>
           <div className="space-y-2">
-            <label className="block text-sm text-white/80">Background Color</label>
+            <label className="block text-sm text-white/80"><Trans t={t} i18nKey="backgroundColor" components={[<code key={0} />]} /></label>
             <div className="flex gap-2">
               <input
                 type="color"
