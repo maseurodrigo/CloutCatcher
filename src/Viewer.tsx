@@ -119,7 +119,7 @@ function Viewer() {
     }, [value, prevValue]);
 
     return (
-      <div className="flex flex-col">
+      <div className="flex-auto">
         <div className="flex items-center gap-1.5 mb-1">
           <div className={`p-1 rounded-md transform group-hover:scale-110 transition-all duration-500`} style={{ backgroundColor: `${widgetConfig.settings.themeColor}0d` }}>
             <Icon className="w-3 h-3 animate-glow" style={{ color: widgetConfig.settings.themeColor, '--theme-color': widgetConfig.settings.themeColor } as React.CSSProperties} strokeWidth={1.5} />
@@ -170,7 +170,7 @@ function Viewer() {
             borderColor: `${widgetConfig.settings.themeColor}`,
             boxShadow: `0 0 0 1px ${widgetConfig.settings.themeColor}`
           }}>
-          <div className={`grid gap-4 grid-cols-${(Number(widgetConfig.settings.showFollowers) + Number(widgetConfig.settings.showSubscribers)) || 0}`}>
+          <div className='flex space-x-4'>
             {widgetConfig.settings.showFollowers && (
               <StatItem 
                 icon={ICONS['TrendingUp']} 
