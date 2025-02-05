@@ -2,45 +2,56 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Heart, TrendingUp, Settings, X } from 'lucide-react';
 
 // @ts-ignore
-import useTwitchWebSocket from './api/TwitchWebSocket';
+import { setTwitchWebSocket } from './api/TwitchWebSocket';
+// @ts-ignore
+import { encrypt } from "./utils/CryptString";
 
 const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Heart, TrendingUp };
 
 function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState({
-    followers: 1337,
-    subscribers: 42,
     followerGoal: 2000,
     subscriberGoal: 100,
     themeColor: '#66FF00'
   });
-
+  
   // Subscribe to Twitch WebSocket events with client app data
-  const events = useTwitchWebSocket(import.meta.env.VITE_TWITCH_CLIENT_ID, import.meta.env.VITE_TWITCH_CLIENT_SECRET, window.location.origin);
+  const { accessToken, broadcasterId, messages, channelFollowers, channelSubscriptions } = setTwitchWebSocket(import.meta.env.VITE_TWITCH_CLIENT_ID, import.meta.env.VITE_TWITCH_CLIENT_SECRET, window.location.origin);
   const processedEvents = useRef(new Set()); // Store processed event IDs
 
   // Initialize followers and subscribers state with the value from settings
-  const [followers, setFollowers] = useState(settings.followers);
-  const [subscribers, setSubscribers] = useState(settings.subscribers);
-
+  const [followers, setFollowers] = useState(channelFollowers);
+  const [subscribers, setSubscribers] = useState(channelSubscriptions);
+  
   useEffect(() => {
-    events.forEach((event: { type: string; id: string }) => {
+    messages.forEach((event: { type: string; id: string }) => {
       // Skip duplicates
       if (processedEvents.current.has(event.id)) return;
 
-      if (event.type === "follower") { setFollowers(prev => prev + 1); } // Increment followers count
-      else if (event.type === "subscriber") { setSubscribers(prev => prev + 1); } // Increment subscribers count
+      if (event.type === "follower") { setFollowers((prev: number) => prev + 1); } // Increment followers count
+      else if (event.type === "subscriber") { setSubscribers((prev: number) => prev + 1); } // Increment subscribers count
 
       // Mark event as processed
       processedEvents.current.add(event.id);
     });
-  }, [events]); // Runs every time a new event arrives
+  }, [messages]); // Runs every time a new event arrives
 
   useEffect(() => {
-    setFollowers(settings.followers);
-    setSubscribers(settings.subscribers);
-  }, [settings.followers, settings.subscribers]);
+    setFollowers(channelFollowers);
+    setSubscribers(channelSubscriptions);
+  }, [channelFollowers, channelSubscriptions]);
+
+  const authData = { accessToken, broadcasterId, settings: { followerGoal: settings.followerGoal, subscriberGoal: settings.subscriberGoal, themeColor: settings.themeColor } };
+
+  // Encrypt the string
+  const encryptedURLData = encrypt(import.meta.env.VITE_PASSPHRASE, JSON.stringify(authData, null, 2));
+
+  // Get the full URL dynamically and append {sessionID}
+  const fullViewerLink = `${window.location.origin}/viewer/${encryptedURLData}`;
+
+  // Copies fullViewerLink URL to clipboard
+  const copyURLToClipboard = () => { navigator.clipboard.writeText(fullViewerLink); };
 
   interface StatItemProps {
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -66,9 +77,7 @@ function App() {
           numberRef.current.classList.add(value > prevValue ? 'animate-up' : 'animate-down');
         }
 
-        const timer = setTimeout(() => {
-          setPrevValue(value);
-        }, 400);
+        const timer = setTimeout(() => { setPrevValue(value); }, 400);
         return () => clearTimeout(timer);
       }
     }, [value, prevValue]);
@@ -117,6 +126,17 @@ function App() {
 
   return (
     <div className="min-h-screen bg-transparent p-12 font-sans">
+      <div className="fixed top-4 right-20 flex justify-center items-center max-w-screen-xl bg-[rgba(31,32,41,0.4)] text-white pl-8 pr-4 py-2 rounded-lg shadow-lg">
+          <span className="max-w-3xl overflow-hidden whitespace-nowrap text-ellipsis">
+            {fullViewerLink}
+          </span>
+          <button onClick={copyURLToClipboard}
+            className="bg-gray-900/90 hover:bg-gray-800 text-white ml-4 py-3 px-3 rounded-md transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[0_0_20px_rgba(0,0,0,0.3)] transform hover:scale-105 backdrop-blur-lg border border-gray-700/30">
+            <svg className="w-[18px] h-[18px] dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z"/>
+            </svg>
+          </button>
+        </div>
       {/* Settings Button */}
       <button
         onClick={() => setShowSettings(!showSettings)}
@@ -148,14 +168,14 @@ function App() {
               icon={ICONS['TrendingUp']} 
               label="Followers" 
               value={followers}
-              initialValue={settings.followers}
+              initialValue={channelFollowers}
               goal={settings.followerGoal}
             />
             <StatItem 
               icon={ICONS['Heart']} 
               label="Subscribers" 
               value={subscribers}
-              initialValue={settings.subscribers}
+              initialValue={channelSubscriptions}
               goal={settings.subscriberGoal}
             />
           </div>
@@ -190,16 +210,6 @@ function App() {
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="block text-sm text-white/80">Initial Followers</label>
-            <input
-              type="number"
-              value={settings.followers}
-              onChange={(e) => setSettings(prev => ({ ...prev, followers: parseInt(e.target.value) || 0 }))}
-              className={`w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-[${settings.themeColor}]`}
-            />
-          </div>
-
-          <div className="space-y-2">
             <label className="block text-sm text-white/80">Followers Goal</label>
             <input
               type="number"
@@ -208,17 +218,6 @@ function App() {
               className={`w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-[${settings.themeColor}]`}
             />
           </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm text-white/80">Initial Subscribers</label>
-            <input
-              type="number"
-              value={settings.subscribers}
-              onChange={(e) => setSettings(prev => ({ ...prev, subscribers: parseInt(e.target.value) || 0 }))}
-              className={`w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-[${settings.themeColor}]`}
-            />
-          </div>
-
           <div className="space-y-2">
             <label className="block text-sm text-white/80">Subscribers Goal</label>
             <input
@@ -228,7 +227,6 @@ function App() {
               className={`w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-[${settings.themeColor}]`}
             />
           </div>
-
           <div className="space-y-2">
             <label className="block text-sm text-white/80">Theme Color</label>
             <div className="flex gap-2">
@@ -247,29 +245,6 @@ function App() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Background */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute w-full h-full animate-pulse"
-          style={{ background: `radial-gradient(circle at center, ${settings.themeColor}1a, transparent 70%)` }}
-        ></div>
-        {[...Array(40)].map((_, i) => (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              width: Math.random() * 2 + 'px',
-              height: Math.random() * 2 + 'px',
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `floatParticle ${Math.random() * 15 + 10}s infinite`,
-              opacity: Math.random() * 0.3,
-              filter: 'blur(1px)',
-              backgroundColor: settings.themeColor
-            }}
-          ></div>
-        ))}
       </div>
     </div>
   );
