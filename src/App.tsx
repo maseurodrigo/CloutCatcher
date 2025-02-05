@@ -6,24 +6,25 @@ import { setTwitchWebSocket } from './api/TwitchWebSocket';
 // @ts-ignore
 import { encrypt } from "./utils/CryptString";
 
+// Mapping icon names
 const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Heart, TrendingUp };
 
 function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState({
-    followerGoal: 2000,
-    subscriberGoal: 100,
+    followerGoal: 1000,
+    subscriberGoal: 50,
     themeColor: '#66FF00'
   });
   
-  // Subscribe to Twitch WebSocket events with client app data
+  // Set and subscribe to Twitch WebSocket events with client app data
   const { accessToken, broadcasterId, messages, channelFollowers, channelSubscriptions } = setTwitchWebSocket(import.meta.env.VITE_TWITCH_CLIENT_ID, import.meta.env.VITE_TWITCH_CLIENT_SECRET, window.location.origin);
   const processedEvents = useRef(new Set()); // Store processed event IDs
 
-  // Initialize followers and subscribers state with the value from settings
-  const [followers, setFollowers] = useState(channelFollowers);
-  const [subscribers, setSubscribers] = useState(channelSubscriptions);
-  
+  // Initialize followers and subscribers state with values from websocket data
+  const [followers, setFollowers] = useState(channelFollowers ?? 0);
+  const [subscribers, setSubscribers] = useState(channelSubscriptions ?? 0);
+
   useEffect(() => {
     messages.forEach((event: { type: string; id: string }) => {
       // Skip duplicates
@@ -44,14 +45,14 @@ function App() {
 
   const authData = { accessToken, broadcasterId, settings: { followerGoal: settings.followerGoal, subscriberGoal: settings.subscriberGoal, themeColor: settings.themeColor } };
 
-  // Encrypt the string
-  const encryptedURLData = encrypt(import.meta.env.VITE_PASSPHRASE, JSON.stringify(authData, null, 2));
+  // Encrypt the authentication data array
+  const encryptedData = encrypt(import.meta.env.VITE_PASSPHRASE, JSON.stringify(authData, null, 2));
 
-  // Get the full URL dynamically and append {sessionID}
-  const fullViewerLink = `${window.location.origin}/viewer/${encryptedURLData}`;
+  // Get the full URL dynamically
+  const viewerLink = `${window.location.origin}/viewer/${encryptedData}`;
 
-  // Copies fullViewerLink URL to clipboard
-  const copyURLToClipboard = () => { navigator.clipboard.writeText(fullViewerLink); };
+  // Copies URL to clipboard
+  const copyURLToClipboard = () => { navigator.clipboard.writeText(viewerLink); };
 
   interface StatItemProps {
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -90,19 +91,16 @@ function App() {
           </div>
           <span className="font-medium tracking-wide text-[11px]" style={{ color: settings.themeColor }}>{label}</span>
         </div>
-        
         <div className="flex items-baseline gap-2 mb-2 overflow-hidden">
           <div ref={numberRef} className="text-lg font-bold tracking-tight text-white number-scroll">
             {typeof value === 'number' ? value.toLocaleString() : value}
           </div>
-          
           {difference > 0 && (
             <div className="text-[9px] font-medium tracking-wide transition-all duration-300" style={{ color: `${settings.themeColor}cc` }}>
               +{difference}
             </div>
           )}
         </div>
-
         <div className="relative w-full h-1 rounded-full overflow-hidden" style={{ backgroundColor: `${settings.themeColor}1a` }}>
           <div 
             className="absolute top-0 left-0 h-full transition-all duration-1000 ease-out"
@@ -128,7 +126,7 @@ function App() {
     <div className="min-h-screen bg-transparent p-12 font-sans">
       <div className="fixed top-4 right-20 flex justify-center items-center max-w-screen-xl bg-[rgba(31,32,41,0.4)] text-white pl-8 pr-4 py-2 rounded-lg shadow-lg">
           <span className="max-w-3xl overflow-hidden whitespace-nowrap text-ellipsis">
-            {fullViewerLink}
+            {viewerLink}
           </span>
           <button onClick={copyURLToClipboard}
             className="bg-gray-900/90 hover:bg-gray-800 text-white ml-4 py-3 px-3 rounded-md transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[0_0_20px_rgba(0,0,0,0.3)] transform hover:scale-105 backdrop-blur-lg border border-gray-700/30">
@@ -149,14 +147,12 @@ function App() {
       >
         <Settings className="w-5 h-5" />
       </button>
-
       <div className="relative group max-w-[280px]">
-        <div className="absolute -inset-0.5 rounded-lg blur opacity-50 group-hover:opacity-75 transition-all duration-500"
+        <div className="absolute inset-0.5 rounded-lg blur opacity-50 group-hover:opacity-75 transition-all duration-500"
           style={{ 
             background: `linear-gradient(to right, ${settings.themeColor}, ${settings.themeColor}, ${settings.themeColor})`
           }}
         ></div>
-        
         <div className="relative bg-black bg-opacity-95 backdrop-blur-xl rounded-lg p-4 transition-all duration-500"
           style={{ 
             borderColor: `${settings.themeColor}33`,
@@ -179,7 +175,6 @@ function App() {
               goal={settings.subscriberGoal}
             />
           </div>
-
           <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500"
             style={{ 
               background: `linear-gradient(to bottom right, ${settings.themeColor}0d, transparent, transparent)`
@@ -187,7 +182,6 @@ function App() {
           ></div>
         </div>
       </div>
-
       {/* Settings Panel */}
       <div className={`fixed inset-y-0 right-0 w-80 bg-black/95 backdrop-blur-xl p-6 transform transition-all duration-300 ease-in-out ${showSettings ? 'translate-x-0' : 'translate-x-full'} shadow-xl`}
         style={{ 
@@ -207,7 +201,6 @@ function App() {
             <X className="w-5 h-5" />
           </button>
         </div>
-
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="block text-sm text-white/80">Followers Goal</label>

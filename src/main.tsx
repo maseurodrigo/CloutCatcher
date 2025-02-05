@@ -11,7 +11,7 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App/>} />
-        <Route path="/viewer/:encryptedURLData" element={<Viewer/>} />
+        <Route path="/viewer/:encryptedData" element={<Viewer/>} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

@@ -7,6 +7,7 @@ import { decrypt } from "./utils/CryptString";
 // @ts-ignore
 import { useTwitchWebSocket } from './api/TwitchWebSocket';
 
+// Mapping icon names
 const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Heart, TrendingUp };
 
 function Viewer() {
@@ -27,7 +28,7 @@ function Viewer() {
   useEffect(() => {
     if (!encryptedURLData) return; // Wait until the encrypted data is available
 
-    // Decrypt the data using the decrypt function
+    // Decrypt the authentication data array
     const decryptedURLData = decrypt(import.meta.env.VITE_PASSPHRASE, encryptedURLData);
 
     // Check if decryption were successful
@@ -52,7 +53,7 @@ function Viewer() {
   const { messages, channelFollowers, channelSubscriptions } = useTwitchWebSocket(import.meta.env.VITE_TWITCH_CLIENT_ID, widgetConfig.accessToken, widgetConfig.broadcasterId);
   const processedEvents = useRef(new Set()); // Store processed event IDs
 
-  // Initialize followers and subscribers state with the value from URL data
+  // Initialize followers and subscribers state with values from websocket data
   const [followers, setFollowers] = useState(channelFollowers ?? 0);
   const [subscribers, setSubscribers] = useState(channelSubscriptions ?? 0);
   
@@ -111,19 +112,16 @@ function Viewer() {
           </div>
           <span className="font-medium tracking-wide text-[11px]" style={{ color: widgetConfig.settings.themeColor }}>{label}</span>
         </div>
-        
         <div className="flex items-baseline gap-2 mb-2 overflow-hidden">
           <div ref={numberRef} className="text-lg font-bold tracking-tight text-white number-scroll">
             {typeof value === 'number' ? (value ?? 0).toLocaleString() : value}
           </div>
-          
           {difference > 0 && (
             <div className="text-[9px] font-medium tracking-wide transition-all duration-300" style={{ color: `${widgetConfig.settings.themeColor}cc` }}>
               +{difference}
             </div>
           )}
         </div>
-
         <div className="relative w-full h-1 rounded-full overflow-hidden" style={{ backgroundColor: `${widgetConfig.settings.themeColor}1a` }}>
           <div 
             className="absolute top-0 left-0 h-full transition-all duration-1000 ease-out"
@@ -148,11 +146,10 @@ function Viewer() {
   return (
     <div className="min-h-screen bg-transparent p-12 font-sans">
       <div className="relative group max-w-[280px]">
-        <div className="absolute -inset-0.5 rounded-lg blur opacity-50 group-hover:opacity-75 transition-all duration-500"
+        <div className="absolute inset-0.5 rounded-lg blur opacity-50 group-hover:opacity-75 transition-all duration-500"
           style={{ 
             background: `linear-gradient(to right, ${widgetConfig.settings.themeColor}, ${widgetConfig.settings.themeColor}, ${widgetConfig.settings.themeColor})`
           }}></div>
-        
         <div className="relative bg-black bg-opacity-95 backdrop-blur-xl rounded-lg p-4 transition-all duration-500"
           style={{ 
             borderColor: `${widgetConfig.settings.themeColor}33`,
@@ -172,7 +169,6 @@ function Viewer() {
               initialValue={channelSubscriptions ?? 0}
               goal={widgetConfig.settings.subscriberGoal}/>
           </div>
-
           <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500"
             style={{ background: `linear-gradient(to bottom right, ${widgetConfig.settings.themeColor}0d, transparent, transparent)` }}
           ></div>
