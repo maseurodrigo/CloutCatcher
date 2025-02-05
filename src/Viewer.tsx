@@ -12,7 +12,7 @@ const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>>
 
 function Viewer() {
   // Retrieve encrypted data from the URL
-  const { encryptedURLData } = useParams();
+  const { encryptedData } = useParams();
 
   // Base structure of the data
   const [widgetConfig, setWidgetConfig] = useState({
@@ -26,10 +26,10 @@ function Viewer() {
   });
   
   useEffect(() => {
-    if (!encryptedURLData) return; // Wait until the encrypted data is available
+    if (!encryptedData) return; // Wait until the encrypted data is available
 
     // Decrypt the authentication data array
-    const decryptedURLData = decrypt(import.meta.env.VITE_PASSPHRASE, encryptedURLData);
+    const decryptedURLData = decrypt(import.meta.env.VITE_PASSPHRASE, encryptedData);
 
     // Check if decryption were successful
     if(decryptedURLData) {
@@ -47,7 +47,7 @@ function Viewer() {
         }
       });
     }
-  }, [encryptedURLData]); // Re-run the effect if the encrypted data changes
+  }, [encryptedData]); // Re-run the effect if the encrypted data changes
 
   // Subscribe to Twitch WebSocket events with client app data
   const { messages, channelFollowers, channelSubscriptions } = useTwitchWebSocket(import.meta.env.VITE_TWITCH_CLIENT_ID, widgetConfig.accessToken, widgetConfig.broadcasterId);
