@@ -69,9 +69,19 @@ function Viewer() {
   const processedEvents = useRef(new Set()); // Store processed event IDs
 
   // Initialize followers and subscribers state with values from websocket data
-  const [followers, setFollowers] = useState(channelFollowers ?? 0);
-  const [subscribers, setSubscribers] = useState(channelSubscriptions ?? 0);
+  const [initialFollowers, setInitialFollowers] = useState(() => channelFollowers ?? 0);
+  const [initialSubscribers, setInitialSubscribers] = useState(() => channelSubscriptions ?? 0);
+
+  const [followers, setFollowers] = useState(() => channelFollowers ?? 0);
+  const [subscribers, setSubscribers] = useState(() => channelSubscriptions ?? 0);
   
+  useEffect(() => {
+    if (!initialFollowers) setInitialFollowers(channelFollowers ?? 0);
+    if (!initialSubscribers) setInitialSubscribers(channelSubscriptions ?? 0);
+    setFollowers(channelFollowers ?? 0);
+    setSubscribers(channelSubscriptions ?? 0);
+  }, [channelFollowers, channelSubscriptions]);
+
   useEffect(() => {
     messages.forEach((event: { type: string; id: string }) => {
       // Skip duplicates
@@ -84,11 +94,6 @@ function Viewer() {
       processedEvents.current.add(event.id);
     });
   }, [messages]); // Runs every time a new event arrives
-
-  useEffect(() => {
-    setFollowers(channelFollowers);
-    setSubscribers(channelSubscriptions);
-  }, [channelFollowers, channelSubscriptions]);
 
   interface StatItemProps {
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -173,7 +178,7 @@ function Viewer() {
                   icon={ICONS['TrendingUp']} 
                   label={t('followers')} 
                   value={followers}
-                  initialValue={channelFollowers ?? 0}
+                  initialValue={initialFollowers}
                   goal={widgetConfig.settings.followerGoal}/>
               )}
               {widgetConfig.settings.showSubscribers && (
@@ -181,7 +186,7 @@ function Viewer() {
                   icon={ICONS['Heart']} 
                   label={t('subscribers')} 
                   value={subscribers}
-                  initialValue={channelSubscriptions ?? 0}
+                  initialValue={initialSubscribers}
                   goal={widgetConfig.settings.subscriberGoal}/>
               )}
             </div>

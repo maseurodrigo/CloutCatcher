@@ -30,9 +30,19 @@ function App() {
   const processedEvents = useRef(new Set()); // Store processed event IDs
 
   // Initialize followers and subscribers state with values from websocket data
-  const [followers, setFollowers] = useState(channelFollowers ?? 0);
-  const [subscribers, setSubscribers] = useState(channelSubscriptions ?? 0);
+  const [initialFollowers, setInitialFollowers] = useState(() => channelFollowers ?? 0);
+  const [initialSubscribers, setInitialSubscribers] = useState(() => channelSubscriptions ?? 0);
 
+  const [followers, setFollowers] = useState(() => channelFollowers ?? 0);
+  const [subscribers, setSubscribers] = useState(() => channelSubscriptions ?? 0);
+
+  useEffect(() => {
+    if (!initialFollowers) setInitialFollowers(channelFollowers ?? 0);
+    if (!initialSubscribers) setInitialSubscribers(channelSubscriptions ?? 0);
+    setFollowers(channelFollowers ?? 0);
+    setSubscribers(channelSubscriptions ?? 0);
+  }, [channelFollowers, channelSubscriptions]);
+  
   useEffect(() => {
     messages.forEach((event: { type: string; id: string }) => {
       // Skip duplicates
@@ -45,11 +55,6 @@ function App() {
       processedEvents.current.add(event.id);
     });
   }, [messages]); // Runs every time a new event arrives
-
-  useEffect(() => {
-    setFollowers(channelFollowers);
-    setSubscribers(channelSubscriptions);
-  }, [channelFollowers, channelSubscriptions]);
 
   const authData = { accessToken, broadcasterId, settings: { 
     lang: settings.lang, 
@@ -181,7 +186,7 @@ function App() {
                   icon={ICONS['TrendingUp']} 
                   label={t('followers')}
                   value={followers}
-                  initialValue={channelFollowers}
+                  initialValue={initialFollowers}
                   goal={settings.followerGoal}/>
               )}
               {settings.showSubscribers && (
@@ -189,7 +194,7 @@ function App() {
                   icon={ICONS['Heart']} 
                   label={t('subscribers')} 
                   value={subscribers}
-                  initialValue={channelSubscriptions}
+                  initialValue={initialSubscribers}
                   goal={settings.subscriberGoal}/>
               )}
             </div>

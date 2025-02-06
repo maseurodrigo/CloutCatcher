@@ -108,7 +108,7 @@ export function setTwitchWebSocket(clientID, clientSecret, redirectURI) {
                 if (data.metadata?.message_type === "session_welcome") {
                     // Fetch and set the total number of followers and subscribers
                     setTotalFollowers();
-                    getSubscriberCount();
+                    setTotalSubscribers();
 
                     // Subscribe to events using the session ID from the payload
                     subToEvents(data.payload.session.id);
@@ -150,7 +150,7 @@ export function setTwitchWebSocket(clientID, clientSecret, redirectURI) {
             else { console.error("Error fetching followers:", data); }
         }
 
-        async function getSubscriberCount() {
+        async function setTotalSubscribers() {
             // Fetch the total number of subscribers (only available for Twitch partners)
             const response = await fetch(`https://api.twitch.tv/helix/subscriptions?broadcaster_id=${broadcasterId}`, {
                 method: "GET",
@@ -245,7 +245,7 @@ export function useTwitchWebSocket(clientID, accessToken, broadcasterId) {
                 if (data.metadata?.message_type === "session_welcome") {
                     // Fetch and set the total number of followers and subscribers
                     setTotalFollowers();
-                    getSubscriberCount();
+                    setTotalSubscribers();
 
                     // Subscribe to events using the session ID from the payload
                     subToEvents(data.payload.session.id);
@@ -287,7 +287,7 @@ export function useTwitchWebSocket(clientID, accessToken, broadcasterId) {
             else { console.error("Error fetching followers:", data); }
         }
 
-        async function getSubscriberCount() {
+        async function setTotalSubscribers() {
             // Fetch the total number of subscribers (only available for Twitch partners)
             const response = await fetch(`https://api.twitch.tv/helix/subscriptions?broadcaster_id=${broadcasterId}`, {
                 method: "GET",
