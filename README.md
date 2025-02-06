@@ -1,6 +1,12 @@
 # CloutCatcher  
 
-This project allows you to connect a React app with Twitch to get real-time updates on followers and subscribers. It uses Twitch's OAuth system for secure authentication and WebSockets to receive live notifications.  
+This project allows you to connect a React app with Twitch to get real-time updates on followers and subscribers. It uses Twitch's OAuth system for secure authentication and WebSockets to receive live notifications.
+
+---
+
+![CloutCatcher Layout](./cloutcatcher.png)
+
+---
 
 ## Features  
 

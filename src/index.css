@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
 @keyframes floatParticle {
   0%, 100% {
     transform: translate(0, 0) rotate(0deg);
@@ -23,10 +29,10 @@
 
 @keyframes glow {
   0%, 100% {
-    filter: drop-shadow(0 0 3px var(--theme-color, #66FF00));
+    filter: drop-shadow(0 0 3px var(--theme-color, --theme-color));
   }
   50% {
-    filter: drop-shadow(0 0 8px var(--theme-color, #66FF00));
+    filter: drop-shadow(0 0 8px var(--theme-color, --theme-color));
   }
 }
 

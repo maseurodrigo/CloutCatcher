@@ -6,6 +6,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { setTwitchWebSocket } from './api/TwitchWebSocket';
 // @ts-ignore
 import { encrypt } from "./utils/CryptString";
+import AnimatedBorderTrail from './components/animated-border-trail';
 
 // Mapping icon names
 const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Heart, TrendingUp };
@@ -168,48 +169,40 @@ function App() {
         </button>
       </div>
       <div className="relative group max-w-[280px]">
-        <div className="absolute inset-0.5 rounded-lg blur opacity-50 group-hover:opacity-75 transition-all duration-500"
-          style={{ 
-            background: `linear-gradient(to right, ${settings.themeColor}, ${settings.themeColor}, ${settings.themeColor})`
-          }}
-        ></div>
-        <div className="relative bg-opacity-95 backdrop-blur-xl rounded-lg p-4 transition-all duration-500"
-          style={{ 
-            backgroundColor: `${settings.backgroundColor}`,
-            borderColor: `${settings.themeColor}`,
-            boxShadow: `0 0 0 1px ${settings.themeColor}`
-          }}>
-          <div className='flex space-x-4'>
-            {settings.showFollowers && (
-              <StatItem 
-                icon={ICONS['TrendingUp']} 
-                label={t('followers')}
-                value={followers}
-                initialValue={channelFollowers}
-                goal={settings.followerGoal}/>
-            )}
-            {settings.showSubscribers && (
-              <StatItem 
-                icon={ICONS['Heart']} 
-                label={t('subscribers')} 
-                value={subscribers}
-                initialValue={channelSubscriptions}
-                goal={settings.subscriberGoal}/>
-            )}
-          </div>
-          <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500"
+        <AnimatedBorderTrail trailSize="lg" trailColor={`${settings.themeColor}`} className='w-full'>
+          <div className="relative bg-opacity-95 backdrop-blur-xl rounded-md p-4 transition-all duration-500"
             style={{ 
-              background: `linear-gradient(to bottom right, ${settings.themeColor}0d, transparent, transparent)`
-            }}
-          ></div>
-        </div>
+              backgroundColor: `${settings.backgroundColor}`,
+              boxShadow: `0 0 0 1px ${settings.themeColor}`
+            }}>
+            <div className='flex space-x-4'>
+              {settings.showFollowers && (
+                <StatItem 
+                  icon={ICONS['TrendingUp']} 
+                  label={t('followers')}
+                  value={followers}
+                  initialValue={channelFollowers}
+                  goal={settings.followerGoal}/>
+              )}
+              {settings.showSubscribers && (
+                <StatItem 
+                  icon={ICONS['Heart']} 
+                  label={t('subscribers')} 
+                  value={subscribers}
+                  initialValue={channelSubscriptions}
+                  goal={settings.subscriberGoal}/>
+              )}
+            </div>
+            <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500"
+              style={{ 
+                background: `linear-gradient(to bottom right, ${settings.themeColor}0d, transparent, transparent)`
+              }}
+            ></div>
+          </div>
+        </AnimatedBorderTrail>
       </div>
       {/* Settings Panel */}
-      <div className={`fixed inset-y-0 right-0 w-80 bg-gray-900/90 backdrop-blur-xl p-6 transform transition-all duration-300 ease-in-out ${showSettings ? 'translate-x-0' : 'translate-x-full'} shadow-3xl`}
-        style={{ 
-          borderColor: `${settings.themeColor}33`,
-          boxShadow: `0 0 0 1px ${settings.themeColor}33`
-        }}>
+      <div className={`fixed inset-y-0 right-0 w-80 bg-gray-900/90 backdrop-blur-xl p-6 transform transition-all duration-300 ease-in-out ${showSettings ? 'translate-x-0' : 'translate-x-full'} shadow-3xl`}>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-white text-lg font-semibold"><Trans t={t} i18nKey="settings" components={[<code key={0} />]} /></h2>
           <button

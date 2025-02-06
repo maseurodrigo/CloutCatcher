@@ -7,6 +7,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { decrypt } from "./utils/CryptString";
 // @ts-ignore
 import { useTwitchWebSocket } from './api/TwitchWebSocket';
+import AnimatedBorderTrail from './components/animated-border-trail';
 
 // Mapping icon names
 const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Heart, TrendingUp };
@@ -160,38 +161,35 @@ function Viewer() {
   return (
     <div className="min-h-screen bg-transparent p-12 font-sans">
       <div className="relative group max-w-[280px]">
-        <div className="absolute inset-0.5 rounded-lg blur opacity-50 group-hover:opacity-75 transition-all duration-500"
-          style={{ 
-            background: `linear-gradient(to right, ${widgetConfig.settings.themeColor}, ${widgetConfig.settings.themeColor}, ${widgetConfig.settings.themeColor})`
-          }}></div>
-        <div className="relative bg-opacity-95 backdrop-blur-xl rounded-lg p-4 transition-all duration-500"
-          style={{ 
-            backgroundColor: `${widgetConfig.settings.backgroundColor}`,
-            borderColor: `${widgetConfig.settings.themeColor}`,
-            boxShadow: `0 0 0 1px ${widgetConfig.settings.themeColor}`
-          }}>
-          <div className='flex space-x-4'>
-            {widgetConfig.settings.showFollowers && (
-              <StatItem 
-                icon={ICONS['TrendingUp']} 
-                label={t('followers')} 
-                value={followers}
-                initialValue={channelFollowers ?? 0}
-                goal={widgetConfig.settings.followerGoal}/>
-            )}
-            {widgetConfig.settings.showSubscribers && (
-              <StatItem 
-                icon={ICONS['Heart']} 
-                label={t('subscribers')} 
-                value={subscribers}
-                initialValue={channelSubscriptions ?? 0}
-                goal={widgetConfig.settings.subscriberGoal}/>
-            )}
+        <AnimatedBorderTrail trailSize="lg" trailColor={`${widgetConfig.settings.themeColor}`} className='w-full'>
+          <div className="relative bg-opacity-95 backdrop-blur-xl rounded-md p-4 transition-all duration-500"
+            style={{ 
+              backgroundColor: `${widgetConfig.settings.backgroundColor}`,
+              boxShadow: `0 0 0 1px ${widgetConfig.settings.themeColor}`
+            }}>
+            <div className='flex space-x-4'>
+              {widgetConfig.settings.showFollowers && (
+                <StatItem 
+                  icon={ICONS['TrendingUp']} 
+                  label={t('followers')} 
+                  value={followers}
+                  initialValue={channelFollowers ?? 0}
+                  goal={widgetConfig.settings.followerGoal}/>
+              )}
+              {widgetConfig.settings.showSubscribers && (
+                <StatItem 
+                  icon={ICONS['Heart']} 
+                  label={t('subscribers')} 
+                  value={subscribers}
+                  initialValue={channelSubscriptions ?? 0}
+                  goal={widgetConfig.settings.subscriberGoal}/>
+              )}
+            </div>
+            <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500"
+              style={{ background: `linear-gradient(to bottom right, ${widgetConfig.settings.themeColor}0d, transparent, transparent)` }}>
+            </div>
           </div>
-          <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500"
-            style={{ background: `linear-gradient(to bottom right, ${widgetConfig.settings.themeColor}0d, transparent, transparent)` }}>
-          </div>
-        </div>
+        </AnimatedBorderTrail>
       </div>
     </div>
   );
