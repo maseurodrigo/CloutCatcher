@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Heart, TrendingUp } from 'lucide-react';
+import { Users, Crown } from 'lucide-react';
 import { Trans, useTranslation } from 'react-i18next';
 
 // @ts-ignore
@@ -10,7 +10,7 @@ import { useTwitchWebSocket } from './api/TwitchWebSocket';
 import AnimatedBorderTrail from './components/animated-border-trail';
 
 // Mapping icon names
-const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Heart, TrendingUp };
+const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Users, Crown };
 
 function Viewer() {
   const { t, i18n } = useTranslation();
@@ -180,7 +180,7 @@ function Viewer() {
             <div className='flex space-x-4'>
               {widgetConfig.settings.showFollowers && (
                 <StatItem 
-                  icon={ICONS['TrendingUp']} 
+                  icon={ICONS['Users']} 
                   label={t('followers')} 
                   value={followers}
                   initialValue={initialFollowers}
@@ -188,7 +188,7 @@ function Viewer() {
               )}
               {widgetConfig.settings.showSubscribers && (
                 <StatItem 
-                  icon={ICONS['Heart']} 
+                  icon={ICONS['Crown']} 
                   label={t('subscribers')} 
                   value={subscribers}
                   initialValue={initialSubscribers}

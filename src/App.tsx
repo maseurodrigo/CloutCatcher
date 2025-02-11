@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Heart, TrendingUp, Settings, X } from 'lucide-react';
+import { Users, Crown, Settings, X } from 'lucide-react';
 import { Trans, useTranslation } from 'react-i18next';
 
 // @ts-ignore
@@ -9,7 +9,7 @@ import { encrypt } from "./utils/CryptString";
 import AnimatedBorderTrail from './components/animated-border-trail';
 
 // Mapping icon names
-const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Heart, TrendingUp };
+const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Users, Crown };
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -187,7 +187,7 @@ function App() {
             <div className='flex space-x-4'>
               {settings.showFollowers && (
                 <StatItem 
-                  icon={ICONS['TrendingUp']} 
+                  icon={ICONS['Users']} 
                   label={t('followers')}
                   value={followers}
                   initialValue={initialFollowers}
@@ -195,7 +195,7 @@ function App() {
               )}
               {settings.showSubscribers && (
                 <StatItem 
-                  icon={ICONS['Heart']} 
+                  icon={ICONS['Crown']} 
                   label={t('subscribers')} 
                   value={subscribers}
                   initialValue={initialSubscribers}

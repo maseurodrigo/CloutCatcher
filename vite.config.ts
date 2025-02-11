@@ -20,9 +20,17 @@ export default defineConfig(async ({ mode }) => {
             'lucide-icons': ['lucide-react'] // Create a separate cacheable chunk
           }
         }
+      },
+      minify: 'esbuild', // Use ESBuild for minification
+      target: 'esnext', // Optimize for modern browsers
+      esbuild: {
+        drop: ['console', 'debugger'], // Remove console logs & debugger
+        minifyIdentifiers: true, // Minify variable & function names
+        minifyWhitespace: true, // Remove unnecessary whitespace
+        minifySyntax: true // Optimize syntax for better performance
       }
     },
-    plugins: [react(), nodePolyfills()].concat(devPlugins),  
+    plugins: [react(), nodePolyfills(), ...devPlugins],
     optimizeDeps: {
       include: ['lucide-react'] // Prebundle Lucide to speed up loading
     },
