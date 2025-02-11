@@ -20,7 +20,7 @@ function Viewer() {
 
   // Base structure of the data
   const [widgetConfig, setWidgetConfig] = useState({
-    accessToken: '',
+    refreshToken: '',
     broadcasterId: 0,
     settings: {
       lang: "en",
@@ -46,7 +46,7 @@ function Viewer() {
 
       // Convert query parameters to the proper data structure
       setWidgetConfig({
-        accessToken: urlJsonData.accessToken,
+        refreshToken: urlJsonData.refreshToken,
         broadcasterId: urlJsonData.broadcasterId,
         settings: {
           lang: urlJsonData.settings.lang, 
@@ -65,7 +65,12 @@ function Viewer() {
   }, [encryptedData]); // Re-run the effect if the encrypted data changes
 
   // Subscribe to Twitch WebSocket events with client app data
-  const { messages, channelFollowers, channelSubscriptions } = useTwitchWebSocket(import.meta.env.VITE_TWITCH_CLIENT_ID, widgetConfig.accessToken, widgetConfig.broadcasterId);
+  const { messages, channelFollowers, channelSubscriptions } = useTwitchWebSocket(
+    import.meta.env.VITE_TWITCH_CLIENT_ID, 
+    import.meta.env.VITE_TWITCH_CLIENT_SECRET, 
+    widgetConfig.refreshToken, 
+    widgetConfig.broadcasterId
+  );
   const processedEvents = useRef(new Set()); // Store processed event IDs
 
   // Initialize followers and subscribers state with values from websocket data

@@ -26,7 +26,11 @@ function App() {
   });
   
   // Set and subscribe to Twitch WebSocket events with client app data
-  const { accessToken, broadcasterId, messages, channelFollowers, channelSubscriptions } = setTwitchWebSocket(import.meta.env.VITE_TWITCH_CLIENT_ID, import.meta.env.VITE_TWITCH_CLIENT_SECRET, window.location.origin);
+  const { refreshToken, broadcasterId, messages, channelFollowers, channelSubscriptions } = setTwitchWebSocket(
+    import.meta.env.VITE_TWITCH_CLIENT_ID, 
+    import.meta.env.VITE_TWITCH_CLIENT_SECRET, 
+    window.location.origin
+  );
   const processedEvents = useRef(new Set()); // Store processed event IDs
 
   // Initialize followers and subscribers state with values from websocket data
@@ -56,7 +60,7 @@ function App() {
     });
   }, [messages]); // Runs every time a new event arrives
 
-  const authData = { accessToken, broadcasterId, settings: { 
+  const authData = { refreshToken, broadcasterId, settings: { 
     lang: settings.lang, 
     showFollowers: settings.showFollowers, 
     showSubscribers: settings.showSubscribers, 

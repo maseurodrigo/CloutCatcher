@@ -4,6 +4,7 @@ export function setTwitchWebSocket(clientID, clientSecret, redirectURI) {
     const [messages, setMessages] = useState([]);
     const [authCode, setAuthCode] = useState("");
     const [accessToken, setAccessToken] = useState("");
+    const [refreshToken, setRefreshToken] = useState("");
     const [broadcasterId, setBroadcasterId] = useState(null);
     const [channelFollowers, setChannelFollowers] = useState(0);
     const [channelSubscriptions, setChannelSubscriptions] = useState(0);
@@ -56,10 +57,7 @@ export function setTwitchWebSocket(clientID, clientSecret, redirectURI) {
 
                 const data = await response.json();
                 
-                if (data.access_token) {
-                    // Save the access token and proceed
-                    setAccessToken(data.access_token);
-                    
+                if (data.access_token) {    
                     // Validate the token
                     const VALIDATE_TOKEN_URL = "https://id.twitch.tv/oauth2/validate";
                     const responseToken = await fetch(VALIDATE_TOKEN_URL, {
@@ -69,11 +67,16 @@ export function setTwitchWebSocket(clientID, clientSecret, redirectURI) {
 
                     // Check if the token validation request was successful
                     if (responseToken.ok) {
-                        const tokenData = await responseToken.json();
+                        // Save the access token
+                        setAccessToken(data.access_token);
+
+                        // Save the refresh token
+                        setRefreshToken(data.refresh_token);
                         
                         // Set the broadcaster ID from the validated token data
+                        const tokenData = await responseToken.json();
                         setBroadcasterId(tokenData.user_id);
-                    } else {           
+                    } else {
                         // Log the error if token validation fails
                         const errorData = await responseToken.json();
                         console.error("Token Validation: ", responseToken.status, errorData);
@@ -83,8 +86,8 @@ export function setTwitchWebSocket(clientID, clientSecret, redirectURI) {
                 console.error("Error fetching Twitch token: ", error);
             }
         }
-
-        if (authCode && !accessToken) { fetchAccToken(); }
+        
+        if (authCode && !accessToken && !refreshToken) { fetchAccToken(); }
     }, [authCode]);
     
     // Establish a WebSocket connection for Twitch EventSub
@@ -213,22 +216,70 @@ export function setTwitchWebSocket(clientID, clientSecret, redirectURI) {
     }, [accessToken, broadcasterId]);
 
     // Return an object with messages, channel followers and subscriptions
-    return { accessToken, broadcasterId, messages, channelFollowers, channelSubscriptions };
+    return { refreshToken, broadcasterId, messages, channelFollowers, channelSubscriptions };
 }
 
-export function useTwitchWebSocket(clientID, accessToken, broadcasterId) {
+export function useTwitchWebSocket(clientID, clientSecret, refreshToken, broadcasterId) {
     const [messages, setMessages] = useState([]);
     const [channelFollowers, setChannelFollowers] = useState(0);
     const [channelSubscriptions, setChannelSubscriptions] = useState(0);
+    const [accessToken, setAccessToken] = useState("");
 
     // Store WebSocket reference
     const wsRef = useRef(null);
+    
+    // Exchange the refresh token for a new access token
+    useEffect(() => {
+        async function fetchAccToken() {
+            try {
+                // Twitch API details
+                const TOKEN_URL = "https://id.twitch.tv/oauth2/token";
+
+                // If refresh token is present, exchange it for a new access token
+                const response = await fetch(TOKEN_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({
+                        client_id: clientID,
+                        client_secret: clientSecret,
+                        grant_type: "refresh_token",
+                        refresh_token: refreshToken
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.access_token) {    
+                    // Validate the token
+                    const VALIDATE_TOKEN_URL = "https://id.twitch.tv/oauth2/validate";
+                    const responseToken = await fetch(VALIDATE_TOKEN_URL, {
+                        method: "GET",
+                        headers: { "Authorization": `Bearer ${data.access_token}` } // Use the access token for validation
+                    });
+
+                    // Check if the token validation request was successful
+                    if (responseToken.ok) {
+                        // Save the access token
+                        setAccessToken(data.access_token);
+                    } else {
+                        // Log the error if token validation fails
+                        const errorData = await responseToken.json();
+                        console.error("Token Validation: ", responseToken.status, errorData);
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching Twitch token: ", error);
+            }
+        }
+        
+        if (clientID && clientSecret && refreshToken && !accessToken) { fetchAccToken(); }
+    }, [clientID, clientSecret, refreshToken]);
 
     // Establish a WebSocket connection for Twitch EventSub
     useEffect(() => {
         // Prevent multiple connections
         if (wsRef.current || !clientID || !accessToken || !broadcasterId) return;
-
+        
         function connectWebSocket() {
             // WebSocket settings
             const KEEPALIVE_TIMEOUT = 60;
