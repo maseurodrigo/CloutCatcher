@@ -128,12 +128,12 @@ export function setTwitchWebSocket(clientID, clientSecret, redirectURI) {
 
             // Reconnect on WebSocket closure
             wsRef.current.onclose = (event) => {
-                console.warn("WebSocket Closed. Reconnecting in 5s...", event);
+                console.warn("WebSocket Closed. Reconnecting in 1s...", event);
                 wsRef.current = null;
                 setTimeout(() => {
                     // Reconnect only if it's fully closed
                     if (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED) { connectWebSocket(); }
-                }, 5000);
+                }, 1000);
             };
         }
 
@@ -313,12 +313,12 @@ export function useTwitchWebSocket(clientID, clientSecret, refreshToken, broadca
 
             // Reconnect on WebSocket closure
             wsRef.current.onclose = (event) => {
-                console.warn("WebSocket Closed. Reconnecting in 5s...", event);
+                console.warn("WebSocket Closed. Reconnecting in 1s...", event);
                 wsRef.current = null;
                 setTimeout(() => {
                     // Reconnect only if it's fully closed
                     if (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED) { connectWebSocket(); }
-                }, 5000);
+                }, 1000);
             };
         }
 
