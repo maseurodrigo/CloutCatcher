@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Users, Crown } from 'lucide-react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import { decrypt } from "./utils/CryptString";
 // @ts-ignore
 import { useTwitchWebSocket } from './api/TwitchWebSocket';
 import AnimatedBorderTrail from './components/animated-border-trail';
+import AnimatedNumbers from 'react-animated-numbers';
 
 // Mapping icon names
 const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Users, Crown };
@@ -139,7 +140,7 @@ function Viewer() {
         </div>
         <div className="flex items-baseline gap-2 mb-2 overflow-hidden">
           <div ref={numberRef} className="text-lg font-bold tracking-tight text-white number-scroll drop-shadow-lg">
-            {typeof value === 'number' ? (value ?? 0).toLocaleString() : value}
+            <AnimatedNumbers key={value} includeComma transitions={(index) => ({ type: "linear", duration: index + 0.1 })} animateToNumber={value}/>
           </div>
           {difference > 0 && (
             <div className="text-[9px] font-medium tracking-wide transition-all duration-300" style={{ color: `${widgetConfig.settings.themeColor}cc` }}>
@@ -168,6 +169,26 @@ function Viewer() {
     );
   };
 
+  // Memoize the followers stat component
+  const memoFollowersStat = useMemo(() => (
+    <StatItem
+      icon={ICONS['Users']}
+      label={t('followers')}
+      value={followers}
+      initialValue={initialFollowers}
+      goal={widgetConfig.settings.followerGoal} />
+  ), [followers, initialFollowers, widgetConfig.settings.followerGoal]);
+
+  // Memoize the subscribers stat component
+  const memoSubscribersStat = useMemo(() => (
+    <StatItem
+      icon={ICONS['Crown']}
+      label={t('subscribers')}
+      value={subscribers}
+      initialValue={initialSubscribers}
+      goal={widgetConfig.settings.subscriberGoal} />
+  ), [subscribers, initialSubscribers, widgetConfig.settings.subscriberGoal]);
+  
   return (
     <div className="min-h-screen bg-transparent p-12 font-sans">
       <div className="relative group max-w-[280px]">
@@ -178,22 +199,8 @@ function Viewer() {
               boxShadow: `0 0 0 1px ${widgetConfig.settings.themeColor}`
             }}>
             <div className='flex space-x-4'>
-              {widgetConfig.settings.showFollowers && (
-                <StatItem 
-                  icon={ICONS['Users']} 
-                  label={t('followers')} 
-                  value={followers}
-                  initialValue={initialFollowers}
-                  goal={widgetConfig.settings.followerGoal}/>
-              )}
-              {widgetConfig.settings.showSubscribers && (
-                <StatItem 
-                  icon={ICONS['Crown']} 
-                  label={t('subscribers')} 
-                  value={subscribers}
-                  initialValue={initialSubscribers}
-                  goal={widgetConfig.settings.subscriberGoal}/>
-              )}
+              {widgetConfig.settings.showFollowers && memoFollowersStat}
+              {widgetConfig.settings.showSubscribers && memoSubscribersStat}
             </div>
             <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500"
               style={{ background: `linear-gradient(to bottom right, ${widgetConfig.settings.themeColor}0d, transparent, transparent)` }}>

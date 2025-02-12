@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Users, Crown, Settings, X } from 'lucide-react';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -7,6 +7,7 @@ import { setTwitchWebSocket } from './api/TwitchWebSocket';
 // @ts-ignore
 import { encrypt } from "./utils/CryptString";
 import AnimatedBorderTrail from './components/animated-border-trail';
+import AnimatedNumbers from 'react-animated-numbers';
 
 // Mapping icon names
 const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Users, Crown };
@@ -124,7 +125,7 @@ function App() {
         </div>
         <div className="flex items-baseline gap-2 mb-2 overflow-hidden">
           <div ref={numberRef} className="text-lg font-bold tracking-tight text-white number-scroll drop-shadow-lg">
-            {typeof value === 'number' ? value.toLocaleString() : value}
+            <AnimatedNumbers key={value} includeComma transitions={(index) => ({ type: "linear", duration: index + 0.1 })} animateToNumber={value}/>
           </div>
           {difference > 0 && (
             <div className="text-[9px] font-medium tracking-wide transition-all duration-300" style={{ color: `${settings.themeColor}cc` }}>
@@ -152,6 +153,26 @@ function App() {
       </div>
     );
   };
+
+  // Memoize the followers stat component
+  const memoFollowersStat = useMemo(() => (
+    <StatItem
+      icon={ICONS['Users']}
+      label={t('followers')}
+      value={followers}
+      initialValue={initialFollowers}
+      goal={settings.followerGoal} />
+  ), [followers, initialFollowers, settings.followerGoal]);
+
+  // Memoize the subscribers stat component
+  const memoSubscribersStat = useMemo(() => (
+    <StatItem
+      icon={ICONS['Crown']}
+      label={t('subscribers')}
+      value={subscribers}
+      initialValue={initialSubscribers}
+      goal={settings.subscriberGoal} />
+  ), [subscribers, initialSubscribers, settings.subscriberGoal]);
 
   return (
     <div className="min-h-screen bg-transparent p-12 font-sans">
@@ -185,22 +206,8 @@ function App() {
               boxShadow: `0 0 0 1px ${settings.themeColor}`
             }}>
             <div className='flex space-x-4'>
-              {settings.showFollowers && (
-                <StatItem 
-                  icon={ICONS['Users']} 
-                  label={t('followers')}
-                  value={followers}
-                  initialValue={initialFollowers}
-                  goal={settings.followerGoal}/>
-              )}
-              {settings.showSubscribers && (
-                <StatItem 
-                  icon={ICONS['Crown']} 
-                  label={t('subscribers')} 
-                  value={subscribers}
-                  initialValue={initialSubscribers}
-                  goal={settings.subscriberGoal}/>
-              )}
+              {settings.showFollowers && memoFollowersStat}
+              {settings.showSubscribers && memoSubscribersStat}
             </div>
             <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500"
               style={{ 
