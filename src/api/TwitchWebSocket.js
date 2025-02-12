@@ -97,7 +97,7 @@ export function setTwitchWebSocket(clientID, clientSecret, redirectURI) {
 
         function connectWebSocket() {
             // WebSocket settings
-            const KEEPALIVE_TIMEOUT = 60;
+            const KEEPALIVE_TIMEOUT = 300;
             const TWITCH_WS_URL = `wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=${KEEPALIVE_TIMEOUT}`;
             
             // Create WebSocket connection
@@ -282,9 +282,9 @@ export function useTwitchWebSocket(clientID, clientSecret, refreshToken, broadca
         
         function connectWebSocket() {
             // WebSocket settings
-            const KEEPALIVE_TIMEOUT = 60;
+            const KEEPALIVE_TIMEOUT = 300;
             const TWITCH_WS_URL = `wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=${KEEPALIVE_TIMEOUT}`;
-            
+
             // Create WebSocket connection
             wsRef.current = new WebSocket(TWITCH_WS_URL);
 
