@@ -162,7 +162,7 @@ function App() {
       value={followers}
       initialValue={initialFollowers}
       goal={settings.followerGoal} />
-  ), [followers, initialFollowers, settings.followerGoal]);
+  ), [followers, initialFollowers, settings]);
 
   // Memoize the subscribers stat component
   const memoSubscribersStat = useMemo(() => (
@@ -172,8 +172,8 @@ function App() {
       value={subscribers}
       initialValue={initialSubscribers}
       goal={settings.subscriberGoal} />
-  ), [subscribers, initialSubscribers, settings.subscriberGoal]);
-
+  ), [subscribers, initialSubscribers, settings]);
+  
   return (
     <div className="min-h-screen bg-transparent p-12 font-sans">
       <div className="fixed top-6 right-6 flex gap-4 pointer-events-auto z-5">
