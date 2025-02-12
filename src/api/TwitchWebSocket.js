@@ -97,8 +97,7 @@ export function setTwitchWebSocket(clientID, clientSecret, redirectURI) {
 
         function connectWebSocket() {
             // WebSocket settings
-            const KEEPALIVE_TIMEOUT = 300;
-            const TWITCH_WS_URL = `wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=${KEEPALIVE_TIMEOUT}`;
+            const TWITCH_WS_URL = 'wss://eventsub.wss.twitch.tv/ws';
             
             // Create WebSocket connection
             wsRef.current = new WebSocket(TWITCH_WS_URL);
@@ -117,6 +116,9 @@ export function setTwitchWebSocket(clientID, clientSecret, redirectURI) {
                     subToEvents(data.payload.session.id);
                 }
 
+                // Detects keep-alive message to confirm the connection is still active
+                if (data.metadata?.message_type === "session_keepalive") { console.log("Received Twitch Keep-Alive"); }
+
                 if (data.metadata?.message_type === "notification") {
                     // Handle incoming event notifications and update messages state
                     setMessages((prev) => [...prev, decodeTwitchEvent(data.payload)]);
@@ -128,12 +130,12 @@ export function setTwitchWebSocket(clientID, clientSecret, redirectURI) {
 
             // Reconnect on WebSocket closure
             wsRef.current.onclose = (event) => {
-                console.warn("WebSocket Closed. Reconnecting in 1s...", event);
+                console.warn("WebSocket Closed. Reconnecting in 5s...", event);
                 wsRef.current = null;
                 setTimeout(() => {
                     // Reconnect only if it's fully closed
                     if (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED) { connectWebSocket(); }
-                }, 1000);
+                }, 5000);
             };
         }
 
@@ -282,8 +284,7 @@ export function useTwitchWebSocket(clientID, clientSecret, refreshToken, broadca
         
         function connectWebSocket() {
             // WebSocket settings
-            const KEEPALIVE_TIMEOUT = 300;
-            const TWITCH_WS_URL = `wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=${KEEPALIVE_TIMEOUT}`;
+            const TWITCH_WS_URL = 'wss://eventsub.wss.twitch.tv/ws';
 
             // Create WebSocket connection
             wsRef.current = new WebSocket(TWITCH_WS_URL);
@@ -302,6 +303,9 @@ export function useTwitchWebSocket(clientID, clientSecret, refreshToken, broadca
                     subToEvents(data.payload.session.id);
                 }
 
+                // Detects keep-alive message to confirm the connection is still active
+                if (data.metadata?.message_type === "session_keepalive") { console.log("Received Twitch Keep-Alive"); }
+
                 if (data.metadata?.message_type === "notification") {
                     // Handle incoming event notifications and update messages state
                     setMessages((prev) => [...prev, decodeTwitchEvent(data.payload)]);
@@ -313,12 +317,12 @@ export function useTwitchWebSocket(clientID, clientSecret, refreshToken, broadca
 
             // Reconnect on WebSocket closure
             wsRef.current.onclose = (event) => {
-                console.warn("WebSocket Closed. Reconnecting in 1s...", event);
+                console.warn("WebSocket Closed. Reconnecting in 5s...", event);
                 wsRef.current = null;
                 setTimeout(() => {
                     // Reconnect only if it's fully closed
                     if (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED) { connectWebSocket(); }
-                }, 1000);
+                }, 5000);
             };
         }
 
