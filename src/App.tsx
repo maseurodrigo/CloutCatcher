@@ -7,7 +7,7 @@ import { setTwitchWebSocket } from './api/TwitchWebSocket';
 // @ts-ignore
 import { encrypt } from "./utils/CryptString";
 import AnimatedBorderTrail from './components/animated-border-trail';
-import AnimatedNumbers from 'react-animated-numbers';
+import SlotCounter from 'react-slot-counter';
 
 // Mapping icon names
 const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Users, Crown };
@@ -34,12 +34,15 @@ function App() {
   );
   const processedEvents = useRef(new Set()); // Store processed event IDs
 
-  // Initialize followers and subscribers state with values from websocket data
+  // Initialize followers and subscribers states with values from websocket data
   const [initialFollowers, setInitialFollowers] = useState(() => channelFollowers ?? 0);
   const [initialSubscribers, setInitialSubscribers] = useState(() => channelSubscriptions ?? 0);
 
   const [followers, setFollowers] = useState(() => channelFollowers ?? 0);
   const [subscribers, setSubscribers] = useState(() => channelSubscriptions ?? 0);
+
+  const [lastFollower, setLastFollower] = useState('');
+  const [lastSubscriber, setLastSubscriber] = useState('');
 
   useEffect(() => {
     if (!initialFollowers) setInitialFollowers(channelFollowers ?? 0);
@@ -49,12 +52,25 @@ function App() {
   }, [channelFollowers, channelSubscriptions]);
   
   useEffect(() => {
-    messages.forEach((event: { type: string; id: string }) => {
+    messages.forEach((event: { type: string; id: string, name: string }) => {
       // Skip duplicates
       if (processedEvents.current.has(event.id)) return;
 
-      if (event.type === "follower") { setFollowers((prev: number) => prev + 1); } // Increment followers count
-      else if (event.type === "subscriber") { setSubscribers((prev: number) => prev + 1); } // Increment subscribers count
+      if (event.type === "follower") { 
+        // Update the last follower name when an event occurs
+        setLastFollower(event.name);
+
+        // Increment followers count
+        setFollowers((prev: number) => prev + 1);
+      }
+
+      else if (event.type === "subscriber") { 
+        // Update the last subscriber name when an event occurs
+        setLastSubscriber(event.name);
+
+        // Increment subscribers count
+        setSubscribers((prev: number) => prev + 1);
+      }
 
       // Mark event as processed
       processedEvents.current.add(event.id);
@@ -89,28 +105,21 @@ function App() {
   interface StatItemProps {
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     label: string;
+    altLabel: string;
     value: number;
     initialValue: number;
     goal: number;
+    altValue: string;
   }
 
-  const StatItem: React.FC<StatItemProps> = ({ icon: Icon, label, value, initialValue, goal }) => {
+  const StatItem: React.FC<StatItemProps> = ({ icon: Icon, label, altLabel, value, initialValue, goal, altValue }) => {
     const [prevValue, setPrevValue] = useState(value);
-    const numberRef = useRef<HTMLDivElement>(null);
     const difference = value - initialValue;
     const progress = (value / goal) * 100;
 
     useEffect(() => {
       if (value !== prevValue) {
-        if (numberRef.current) {
-          numberRef.current.classList.remove('animate-up', 'animate-down');
-          // Force reflow
-          void numberRef.current.offsetWidth;
-          // Add the appropriate animation class based on value change
-          numberRef.current.classList.add(value > prevValue ? 'animate-up' : 'animate-down');
-        }
-
-        const timer = setTimeout(() => { setPrevValue(value); }, 400);
+        const timer = setTimeout(() => { setPrevValue(value); }, 100);
         return () => clearTimeout(timer);
       }
     }, [value, prevValue]);
@@ -124,8 +133,8 @@ function App() {
           <span className="font-medium tracking-wide text-[11px]" style={{ color: settings.themeColor }}>{label}</span>
         </div>
         <div className="flex items-baseline gap-2 mb-2 overflow-hidden">
-          <div ref={numberRef} className="text-lg font-bold tracking-tight text-white number-scroll drop-shadow-lg">
-            <AnimatedNumbers key={value} includeComma transitions={(index) => ({ type: "linear", duration: index + 0.1 })} animateToNumber={value}/>
+          <div className="text-lg font-bold tracking-tight text-white number-scroll drop-shadow-lg">
+            <SlotCounter startValue={initialValue} value={value} sequentialAnimationMode direction="bottom-up" autoAnimationStart={true}/>
           </div>
           {difference > 0 && (
             <div className="text-[9px] font-medium tracking-wide transition-all duration-300" style={{ color: `${settings.themeColor}cc` }}>
@@ -150,6 +159,13 @@ function App() {
             {Math.round(progress)}%
           </div>
         </div>
+        {altValue && (
+          <div className="flex justify-start items-center mt-3 pt-1 border-t-2" style={{ borderColor: `${settings.themeColor}0d` }}>
+            <div className="text-[9px]" style={{ color: `${settings.themeColor}99` }}>
+              {altLabel}: <b>{altValue}</b>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -159,9 +175,11 @@ function App() {
     <StatItem
       icon={ICONS['Users']}
       label={t('followers')}
+      altLabel={t('lastFollow')}
       value={followers}
       initialValue={initialFollowers}
-      goal={settings.followerGoal} />
+      goal={settings.followerGoal}
+      altValue={lastFollower} />
   ), [followers, initialFollowers, settings]);
 
   // Memoize the subscribers stat component
@@ -169,11 +187,13 @@ function App() {
     <StatItem
       icon={ICONS['Crown']}
       label={t('subscribers')}
+      altLabel={t('lastSubscriber')}
       value={subscribers}
       initialValue={initialSubscribers}
-      goal={settings.subscriberGoal} />
+      goal={settings.subscriberGoal}
+      altValue={lastSubscriber} />
   ), [subscribers, initialSubscribers, settings]);
-  
+
   return (
     <div className="min-h-screen bg-transparent p-12 font-sans">
       <div className="fixed top-6 right-6 flex gap-4 pointer-events-auto z-5">

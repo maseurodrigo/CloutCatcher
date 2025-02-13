@@ -410,7 +410,20 @@ export function useTwitchWebSocket(clientID, clientSecret, refreshToken, broadca
 
 // Decode Twitch events
 function decodeTwitchEvent(payload) {
-    if (payload.subscription?.type.includes("channel.subscribe")) { return { type: "subscriber", id: payload.event.user_id }; }
-    if (payload.subscription?.type.includes("channel.follow")) { return { type: "follower", id: payload.event.user_id }; }
+    if (payload.subscription?.type.includes("channel.subscribe")) { 
+        return { 
+            type: "subscriber", 
+            id: payload.event.user_id,
+            name: payload.event.user_name
+        };
+    }
+
+    if (payload.subscription?.type.includes("channel.follow")) { 
+        return { 
+            type: "follower", 
+            id: payload.event.user_id,
+            name: payload.event.user_name
+        };
+    }
     return null;
 }

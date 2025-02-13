@@ -9,5 +9,7 @@
     "backgroundColor": "Cor de Fundo",
     "followers": "Seguidores",
     "subscribers": "Subscritores",
-    "goal": "Objetivo"
+    "goal": "Objetivo",
+    "lastFollow": "Últ.Seguidor",
+    "lastSubscriber": "Últ.Subscritor"
 }
