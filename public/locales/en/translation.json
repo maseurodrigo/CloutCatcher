@@ -3,13 +3,12 @@
     "settings": "Settings",
     "showFollowers": "Show Followers",
     "showSubscribers": "Show Subscribers",
+    "showLatests": "Show Latests",
     "followersGoal": "Followers Goal",
     "subscribersGoal": "Subscribers Goal",
     "themeColor": "Theme Color",
     "backgroundColor": "Background Color",
     "followers": "Followers",
     "subscribers": "Subscribers",
-    "goal": "Goal",
-    "lastFollow": "L.Follow",
-    "lastSubscriber": "L.Subscriber"
+    "goal": "Goal"
 }

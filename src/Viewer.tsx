@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { Users, Crown } from 'lucide-react';
+import { Users, UserPlus, BadgeCheck, BadgePlus } from 'lucide-react';
 import { Trans, useTranslation } from 'react-i18next';
 
 // @ts-ignore
@@ -11,7 +11,7 @@ import AnimatedBorderTrail from './components/animated-border-trail';
 import SlotCounter from 'react-slot-counter';
 
 // Mapping icon names
-const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Users, Crown };
+const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Users, UserPlus, BadgeCheck, BadgePlus };
 
 function Viewer() {
   const { t, i18n } = useTranslation();
@@ -27,6 +27,7 @@ function Viewer() {
       lang: "en",
       showFollowers: true,
       showSubscribers: true,
+      showLatests: false,
       followerGoal: 0,
       subscriberGoal: 0,
       themeColor: '',
@@ -53,6 +54,7 @@ function Viewer() {
           lang: urlJsonData.settings.lang, 
           showFollowers: urlJsonData.settings.showFollowers, 
           showSubscribers: urlJsonData.settings.showSubscribers, 
+          showLatests: urlJsonData.settings.showLatests, 
           followerGoal: urlJsonData.settings.followerGoal,
           subscriberGoal: urlJsonData.settings.subscriberGoal,
           themeColor: urlJsonData.settings.themeColor,
@@ -72,7 +74,9 @@ function Viewer() {
     widgetConfig.refreshToken, 
     widgetConfig.broadcasterId
   );
-  const processedEvents = useRef(new Set()); // Store processed event IDs
+
+  // Store processed event IDs
+  const processedEvents = useRef(new Set());
 
   // Initialize followers and subscribers states with values from websocket data
   const [initialFollowers, setInitialFollowers] = useState(() => channelFollowers ?? 0);
@@ -119,15 +123,15 @@ function Viewer() {
 
   interface StatItemProps {
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    altIcon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     label: string;
-    altLabel: string;
     value: number;
     initialValue: number;
     goal: number;
     altValue: string;
   }
 
-  const StatItem: React.FC<StatItemProps> = ({ icon: Icon, label, altLabel, value, initialValue, goal, altValue }) => {
+  const StatItem: React.FC<StatItemProps> = ({ icon: Icon, altIcon: AltIcon, label, value, initialValue, goal, altValue }) => {
     const [prevValue, setPrevValue] = useState(value);
     const difference = value - initialValue;
     const progress = (value / goal) * 100;
@@ -143,7 +147,7 @@ function Viewer() {
       <div className="flex-auto">
         <div className="flex items-center gap-1.5 mb-1">
           <div className={`p-1 rounded-md transform group-hover:scale-110 transition-all duration-500`} style={{ backgroundColor: `${widgetConfig.settings.themeColor}0d` }}>
-            <Icon className="w-3 h-3 animate-glow" style={{ color: widgetConfig.settings.themeColor, '--theme-color': widgetConfig.settings.themeColor } as React.CSSProperties} strokeWidth={1.5} />
+            <Icon className="w-3 h-3 animate-glow" style={{ color: widgetConfig.settings.themeColor, '--theme-color': widgetConfig.settings.themeColor } as React.CSSProperties} strokeWidth={2} />
           </div>
           <span className="font-medium tracking-wide text-[11px]" style={{ color: widgetConfig.settings.themeColor }}>{label}</span>
         </div>
@@ -174,11 +178,12 @@ function Viewer() {
             {Math.round(progress)}%
           </div>
         </div>
-        {altValue && (
-          <div className="flex justify-start items-center mt-3 pt-1 border-t-2" style={{ borderColor: `${widgetConfig.settings.themeColor}0d` }}>
-            <div className="text-[9px]" style={{ color: `${widgetConfig.settings.themeColor}99` }}>
-              {altLabel}: <b>{altValue}</b>
+        {widgetConfig.settings.showLatests && altValue && (
+          <div className="flex justify-start items-center gap-1 mt-2 pt-1 border-t-2" style={{ borderColor: `${widgetConfig.settings.themeColor}0d` }}>
+            <div className={`p-1 rounded-md transform group-hover:scale-110 transition-all duration-500`} style={{ backgroundColor: `${widgetConfig.settings.themeColor}0d` }}>
+              <AltIcon className="w-3 h-3 animate-glow" style={{ color: widgetConfig.settings.themeColor, '--theme-color': widgetConfig.settings.themeColor } as React.CSSProperties} strokeWidth={1} />
             </div>
+            <span className="font-bold tracking-wide text-[9px]" style={{ color: widgetConfig.settings.themeColor }}>{altValue}</span>
           </div>
         )}
       </div>
@@ -189,8 +194,8 @@ function Viewer() {
   const memoFollowersStat = useMemo(() => (
     <StatItem
       icon={ICONS['Users']}
+      altIcon={ICONS['UserPlus']}
       label={t('followers')}
-      altLabel={t('lastFollow')}
       value={followers}
       initialValue={initialFollowers}
       goal={widgetConfig.settings.followerGoal}
@@ -200,9 +205,9 @@ function Viewer() {
   // Memoize the subscribers stat component
   const memoSubscribersStat = useMemo(() => (
     <StatItem
-      icon={ICONS['Crown']}
+      icon={ICONS['BadgeCheck']}
+      altIcon={ICONS['BadgePlus']}
       label={t('subscribers')}
-      altLabel={t('lastSubscriber')}
       value={subscribers}
       initialValue={initialSubscribers}
       goal={widgetConfig.settings.subscriberGoal}

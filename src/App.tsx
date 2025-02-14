@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Users, Crown, Settings, X } from 'lucide-react';
+import { Users, UserPlus, BadgeCheck, BadgePlus, Settings, X } from 'lucide-react';
 import { Trans, useTranslation } from 'react-i18next';
 
 // @ts-ignore
@@ -10,7 +10,7 @@ import AnimatedBorderTrail from './components/animated-border-trail';
 import SlotCounter from 'react-slot-counter';
 
 // Mapping icon names
-const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Users, Crown };
+const ICONS: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = { Users, UserPlus, BadgeCheck, BadgePlus };
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -20,6 +20,7 @@ function App() {
     lang: "en",
     showFollowers: true,
     showSubscribers: true,
+    showLatests: false,
     followerGoal: 1000,
     subscriberGoal: 50,
     themeColor: '#66FF00',
@@ -32,7 +33,9 @@ function App() {
     import.meta.env.VITE_TWITCH_CLIENT_SECRET, 
     window.location.origin
   );
-  const processedEvents = useRef(new Set()); // Store processed event IDs
+
+  // Store processed event IDs
+  const processedEvents = useRef(new Set());
 
   // Initialize followers and subscribers states with values from websocket data
   const [initialFollowers, setInitialFollowers] = useState(() => channelFollowers ?? 0);
@@ -81,6 +84,7 @@ function App() {
     lang: settings.lang, 
     showFollowers: settings.showFollowers, 
     showSubscribers: settings.showSubscribers, 
+    showLatests: settings.showLatests,
     followerGoal: settings.followerGoal, 
     subscriberGoal: settings.subscriberGoal, 
     themeColor: settings.themeColor, 
@@ -104,15 +108,15 @@ function App() {
 
   interface StatItemProps {
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    altIcon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     label: string;
-    altLabel: string;
     value: number;
     initialValue: number;
     goal: number;
     altValue: string;
   }
 
-  const StatItem: React.FC<StatItemProps> = ({ icon: Icon, label, altLabel, value, initialValue, goal, altValue }) => {
+  const StatItem: React.FC<StatItemProps> = ({ icon: Icon, altIcon: AltIcon, label, value, initialValue, goal, altValue }) => {
     const [prevValue, setPrevValue] = useState(value);
     const difference = value - initialValue;
     const progress = (value / goal) * 100;
@@ -128,7 +132,7 @@ function App() {
       <div className="flex-auto">
         <div className="flex items-center gap-1.5 mb-1">
           <div className={`p-1 rounded-md transform group-hover:scale-110 transition-all duration-500`} style={{ backgroundColor: `${settings.themeColor}0d` }}>
-            <Icon className="w-3 h-3 animate-glow" style={{ color: settings.themeColor, '--theme-color': settings.themeColor } as React.CSSProperties} strokeWidth={1.5} />
+            <Icon className="w-3 h-3 animate-glow" style={{ color: settings.themeColor, '--theme-color': settings.themeColor } as React.CSSProperties} strokeWidth={2} />
           </div>
           <span className="font-medium tracking-wide text-[11px]" style={{ color: settings.themeColor }}>{label}</span>
         </div>
@@ -159,11 +163,12 @@ function App() {
             {Math.round(progress)}%
           </div>
         </div>
-        {altValue && (
-          <div className="flex justify-start items-center mt-3 pt-1 border-t-2" style={{ borderColor: `${settings.themeColor}0d` }}>
-            <div className="text-[9px]" style={{ color: `${settings.themeColor}99` }}>
-              {altLabel}: <b>{altValue}</b>
+        {settings.showLatests && altValue && (
+          <div className="flex justify-start items-center gap-1 mt-2 pt-1 border-t-2" style={{ borderColor: `${settings.themeColor}0d` }}>
+            <div className={`p-1 rounded-md transform group-hover:scale-110 transition-all duration-500`} style={{ backgroundColor: `${settings.themeColor}0d` }}>
+              <AltIcon className="w-3 h-3 animate-glow" style={{ color: settings.themeColor, '--theme-color': settings.themeColor } as React.CSSProperties} strokeWidth={1} />
             </div>
+            <span className="font-bold tracking-wide text-[9px]" style={{ color: settings.themeColor }}>{altValue}</span>
           </div>
         )}
       </div>
@@ -174,8 +179,8 @@ function App() {
   const memoFollowersStat = useMemo(() => (
     <StatItem
       icon={ICONS['Users']}
+      altIcon={ICONS['UserPlus']}
       label={t('followers')}
-      altLabel={t('lastFollow')}
       value={followers}
       initialValue={initialFollowers}
       goal={settings.followerGoal}
@@ -185,9 +190,9 @@ function App() {
   // Memoize the subscribers stat component
   const memoSubscribersStat = useMemo(() => (
     <StatItem
-      icon={ICONS['Crown']}
+      icon={ICONS['BadgeCheck']}
+      altIcon={ICONS['BadgePlus']}
       label={t('subscribers')}
-      altLabel={t('lastSubscriber')}
       value={subscribers}
       initialValue={initialSubscribers}
       goal={settings.subscriberGoal}
@@ -278,6 +283,16 @@ function App() {
                 onChange={(e) => setSettings(prev => ({ ...prev, showSubscribers: e.target.checked }))}
                 className="w-5 h-5 rounded border border-white/10 bg-black/50 cursor-pointer"/>
               <span><Trans t={t} i18nKey="showSubscribers" components={[<code key={0} />]} /></span>
+            </label>
+          </div>
+          <div className="space-y-2">
+            <label className="flex items-center space-x-2 text-white/80">
+              <input
+                type="checkbox"
+                checked={settings.showLatests}
+                onChange={(e) => setSettings(prev => ({ ...prev, showLatests: e.target.checked }))}
+                className="w-5 h-5 rounded border border-white/10 bg-black/50 cursor-pointer"/>
+              <span><Trans t={t} i18nKey="showLatests" components={[<code key={0} />]} /></span>
             </label>
           </div>
           <div className="space-y-2">
