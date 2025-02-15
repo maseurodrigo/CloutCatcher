@@ -138,7 +138,7 @@ function App() {
         </div>
         <div className="flex items-baseline gap-2 mb-2 overflow-hidden">
           <div className="text-lg font-bold tracking-tight text-white number-scroll drop-shadow-lg">
-            <SlotCounter startValue={initialValue} value={value} sequentialAnimationMode direction="bottom-up" autoAnimationStart={true}/>
+            <SlotCounter startValue={initialValue} value={value} sequentialAnimationMode direction="bottom-up" autoAnimationStart={true} duration={0.3}/>
           </div>
           {difference > 0 && (
             <div className="text-[9px] font-medium tracking-wide transition-all duration-300" style={{ color: `${settings.themeColor}cc` }}>
