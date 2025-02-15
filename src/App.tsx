@@ -164,7 +164,7 @@ function App() {
           </div>
         </div>
         {settings.showLatests && altValue && (
-          <div className="flex justify-start items-center gap-1 mt-2 pt-1 border-t-2" style={{ borderColor: `${settings.themeColor}0d` }}>
+          <div className="flex justify-start items-center gap-1 mt-2">
             <div className={`p-1 rounded-md transform group-hover:scale-110 transition-all duration-500`} style={{ backgroundColor: `${settings.themeColor}0d` }}>
               <AltIcon className="w-3 h-3 animate-glow" style={{ color: settings.themeColor, '--theme-color': settings.themeColor } as React.CSSProperties} strokeWidth={1} />
             </div>

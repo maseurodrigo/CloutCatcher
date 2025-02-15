@@ -179,7 +179,7 @@ function Viewer() {
           </div>
         </div>
         {widgetConfig.settings.showLatests && altValue && (
-          <div className="flex justify-start items-center gap-1 mt-2 pt-1 border-t-2" style={{ borderColor: `${widgetConfig.settings.themeColor}0d` }}>
+          <div className="flex justify-start items-center gap-1 mt-2">
             <div className={`p-1 rounded-md transform group-hover:scale-110 transition-all duration-500`} style={{ backgroundColor: `${widgetConfig.settings.themeColor}0d` }}>
               <AltIcon className="w-3 h-3 animate-glow" style={{ color: widgetConfig.settings.themeColor, '--theme-color': widgetConfig.settings.themeColor } as React.CSSProperties} strokeWidth={1} />
             </div>
