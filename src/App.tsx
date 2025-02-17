@@ -20,6 +20,7 @@ function App() {
     lang: "en",
     showFollowers: true,
     showSubscribers: true,
+    showDailyCounter: true,
     showLatests: false,
     followerGoal: 1000,
     subscriberGoal: 50,
@@ -84,6 +85,7 @@ function App() {
     lang: settings.lang, 
     showFollowers: settings.showFollowers, 
     showSubscribers: settings.showSubscribers, 
+    showDailyCounter: settings.showDailyCounter,
     showLatests: settings.showLatests,
     followerGoal: settings.followerGoal, 
     subscriberGoal: settings.subscriberGoal, 
@@ -138,9 +140,9 @@ function App() {
         </div>
         <div className="flex items-baseline gap-2 mb-2 overflow-hidden">
           <div className="text-lg font-bold tracking-tight text-white number-scroll drop-shadow-lg">
-            <SlotCounter startValue={initialValue} value={value} sequentialAnimationMode direction="bottom-up" autoAnimationStart={true} duration={0.3}/>
+            <SlotCounter startValue={initialValue} value={value} sequentialAnimationMode direction="bottom-up" autoAnimationStart={true} duration={0.5}/>
           </div>
-          {difference > 0 && (
+          {settings.showDailyCounter && difference > 0 && (
             <div className="text-[9px] font-medium tracking-wide transition-all duration-300" style={{ color: `${settings.themeColor}cc` }}>
               +{difference}
             </div>
@@ -252,7 +254,7 @@ function App() {
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="space-y-2">
             <label className="block text-sm text-white/80">
               <Trans t={t} i18nKey="language" components={[<code key={0} />]} />
@@ -265,7 +267,7 @@ function App() {
               <option value="pt">PT</option>
             </select>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-4">
             <label className="flex items-center space-x-2 text-white/80">
               <input
                 type="checkbox"
@@ -274,8 +276,6 @@ function App() {
                 className="w-5 h-5 rounded border border-white/10 bg-black/50 cursor-pointer"/>
               <span><Trans t={t} i18nKey="showFollowers" components={[<code key={0} />]} /></span>
             </label>
-          </div>
-          <div className="space-y-2">
             <label className="flex items-center space-x-2 text-white/80">
               <input
                 type="checkbox"
@@ -284,8 +284,14 @@ function App() {
                 className="w-5 h-5 rounded border border-white/10 bg-black/50 cursor-pointer"/>
               <span><Trans t={t} i18nKey="showSubscribers" components={[<code key={0} />]} /></span>
             </label>
-          </div>
-          <div className="space-y-2">
+            <label className="flex items-center space-x-2 text-white/80">
+              <input
+                type="checkbox"
+                checked={settings.showDailyCounter}
+                onChange={(e) => setSettings(prev => ({ ...prev, showDailyCounter: e.target.checked }))}
+                className="w-5 h-5 rounded border border-white/10 bg-black/50 cursor-pointer"/>
+              <span><Trans t={t} i18nKey="showDailyCounter" components={[<code key={0} />]} /></span>
+            </label>
             <label className="flex items-center space-x-2 text-white/80">
               <input
                 type="checkbox"

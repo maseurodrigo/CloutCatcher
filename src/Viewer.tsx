@@ -27,6 +27,7 @@ function Viewer() {
       lang: "en",
       showFollowers: true,
       showSubscribers: true,
+      showDailyCounter: true,
       showLatests: false,
       followerGoal: 0,
       subscriberGoal: 0,
@@ -54,6 +55,7 @@ function Viewer() {
           lang: urlJsonData.settings.lang, 
           showFollowers: urlJsonData.settings.showFollowers, 
           showSubscribers: urlJsonData.settings.showSubscribers, 
+          showDailyCounter: urlJsonData.settings.showDailyCounter,
           showLatests: urlJsonData.settings.showLatests, 
           followerGoal: urlJsonData.settings.followerGoal,
           subscriberGoal: urlJsonData.settings.subscriberGoal,
@@ -153,9 +155,9 @@ function Viewer() {
         </div>
         <div className="flex items-baseline gap-2 mb-2 overflow-hidden">
           <div className="text-lg font-bold tracking-tight text-white number-scroll drop-shadow-lg">
-            <SlotCounter startValue={initialValue} value={value} sequentialAnimationMode direction="bottom-up" autoAnimationStart={true} duration={0.3}/>
+            <SlotCounter startValue={initialValue} value={value} sequentialAnimationMode direction="bottom-up" autoAnimationStart={true} duration={0.5}/>
           </div>
-          {difference > 0 && (
+          {widgetConfig.settings.showDailyCounter && difference > 0 && (
             <div className="text-[9px] font-medium tracking-wide transition-all duration-300" style={{ color: `${widgetConfig.settings.themeColor}cc` }}>
               +{difference}
             </div>
