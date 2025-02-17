@@ -32,57 +32,13 @@ npm install
 
 ## How to Use  
 
-### 1. Get Your Twitch API Credentials  
+### Get Your Twitch API Credentials  
 
 Before using this, you'll need three things from [Twitch Developer Portal](https://dev.twitch.tv/console):  
 
 - **Client ID**  
 - **Client Secret**  
 - **Redirect URI**  
-
-### 2. Connect to Twitch  
-
-Use this function to start the Twitch connection and listen for live updates:  
-
-```js
-import { setTwitchWebSocket } from "./yourFile";
-
-const { messages, channelFollowers, channelSubscriptions } = setTwitchWebSocket(
-    "your_client_id",
-    "your_client_secret",
-    "your_redirect_uri"
-);
-```
-
-### 3. Use the WebSocket Hook  
-
-For an easier setup, use this built-in React hook:  
-
-```js
-import { useTwitchWebSocket } from "./yourFile";
-
-const { messages, channelFollowers, channelSubscriptions } = useTwitchWebSocket(
-    "your_client_id",
-    accessToken,
-    broadcasterId
-);
-```
-
-### 4. Handle Events (New Followers/Subscribers)  
-
-You can track live events like this:  
-
-```js
-useEffect(() => {
-    messages.forEach((msg) => {
-        if (msg.type === "subscriber") {
-            console.log(`New Subscriber: ${msg.id}`);
-        } else if (msg.type === "follower") {
-            console.log(`New Follower: ${msg.id}`);
-        }
-    });
-}, [messages]);
-```
 
 ## Setting Up Environment Variables  
 
@@ -100,9 +56,3 @@ VITE_TWITCH_REDIRECT_URI=your_redirect_uri
 2. Once logged in, it connects to Twitch's WebSocket to listen for updates.  
 3. If the connection drops, it automatically tries to reconnect.  
 4. The app updates in real-time when someone follows or subscribes.  
-
-## Troubleshooting  
-
-- If login fails, check your Twitch credentials.  
-- If no events appear, ensure your WebSocket connection is active.  
-- If the connection keeps dropping, wait a few seconds—it should reconnect automatically.  
