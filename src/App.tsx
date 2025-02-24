@@ -187,7 +187,7 @@ function App() {
       initialValue={initialFollowers}
       goal={settings.followerGoal}
       altValue={lastFollower} />
-  ), [followers, initialFollowers, settings]);
+  ), [i18n.language, followers, initialFollowers, settings]);
 
   // Memoize the subscribers stat component
   const memoSubscribersStat = useMemo(() => (
@@ -199,7 +199,7 @@ function App() {
       initialValue={initialSubscribers}
       goal={settings.subscriberGoal}
       altValue={lastSubscriber} />
-  ), [subscribers, initialSubscribers, settings]);
+  ), [i18n.language, subscribers, initialSubscribers, settings]);
 
   return (
     <div className="min-h-screen bg-transparent p-12 font-sans">
