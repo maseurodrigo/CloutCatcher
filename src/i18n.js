@@ -6,12 +6,10 @@ import { initReactI18next } from 'react-i18next';
 export async function init() {
   const instance = i18n
     // load translation using http -> see /public/locales
-    // learn more: https://github.com/i18next/i18next-http-backend
     .use(Backend)
-    // detect user language
-    // learn more: https://github.com/i18next/i18next-browser-languageDetector
+    // Detect user language
     .use(LanguageDetector)
-    // pass the i18n instance to react-i18next.
+    // Pass the i18n instance to react-i18next
     .use(initReactI18next);
 
   if (import.meta.env.MODE !== 'production') {
@@ -21,12 +19,20 @@ export async function init() {
   }
 
   await instance.init({
-    fallbackLng: 'en',
+    lng: 'en', // Default language
+    fallbackLng: 'en', // Fallback language
 
-    interpolation: {
-      escapeValue: false, // not needed for react as it escapes by default
-    },
+    // React already handles escaping
+    interpolation: { escapeValue: false },
+
+    // Disable suspense for SSR compatibility
+    react: { useSuspense: false }
   });
 
+  // Force HTML lang update immediately after language change
+  i18n.on('languageChanged', () => {
+    document.documentElement.lang = i18n.language;
+  });
+  
   return instance;
 }
