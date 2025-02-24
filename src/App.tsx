@@ -234,6 +234,10 @@ function App() {
             }}>
             <div className='flex space-x-4'>
               {settings.showFollowers && memoFollowersStat}
+              {settings.showFollowers && settings.showSubscribers && (
+                <div className="w-px bg-gradient-to-b from-transparent to-transparent" 
+                  style={{ backgroundImage: `linear-gradient(to bottom, transparent, ${settings.themeColor}, transparent)` }}/>
+              )}
               {settings.showSubscribers && memoSubscribersStat}
             </div>
             <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500"
